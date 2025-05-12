@@ -5,9 +5,12 @@
       "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "installCommand": "npm install -g pnpm@7.33.6 && pnpm install",
+        "installCommand": "npm install -g pnpm@7.33.6 && pnpm install --no-frozen-lockfile",
         "buildCommand": "pnpm build"
       }
     }
-  ]
+  ],
+  "env": {
+    "NODE_VERSION": "18.x"
+  }
 } 

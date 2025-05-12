@@ -17,6 +17,6 @@
   "packageManager": "pnpm@7.33.6",
   "engines": {
     "node": "18.x",
-    "pnpm": "7.33.6"
+    "pnpm": ">=6.35.1"
   }
 }
