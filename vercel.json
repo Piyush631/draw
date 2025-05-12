@@ -1,9 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "env": {
-    "NODE_VERSION": "20.x"
+    "buildCommand": "pnpm install --frozen-lockfile && pnpm run build",
+    "installCommand": "pnpm install --frozen-lockfile",
+    "outputDirectory": "apps/excel-draw-frontend/.next",
+    "rootDirectory": "apps/excel-draw-frontend"
   }
-} 
