@@ -15,8 +15,8 @@
     "typescript": "5.8.2"
   },
   "packageManager": "pnpm@7.33.6",
-  "engines": {
-    "node": ">=20.18.3",
-    "pnpm": ">=6.35.1"
-  }
+ "engines": {
+  "pnpm": "8.6.12",
+  "node": "20.x"
+}
 }
