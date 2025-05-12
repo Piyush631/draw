@@ -1,7 +1,0 @@
-
-{
-    "buildCommand": "pnpm build",
-    "installCommand": "pnpm install",
-    "outputDirectory": "",
-    "rootDirectory": "apps/excel-draw-frontend"
-  }
