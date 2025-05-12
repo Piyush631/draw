@@ -1,6 +1,6 @@
 {
     "buildCommand": "pnpm install --frozen-lockfile && pnpm run build",
     "installCommand": "pnpm install --frozen-lockfile",
-    "outputDirectory": "apps/excel-draw-frontend/.next",
-    "rootDirectory": "apps/excel-draw-frontend"
+    "outputDirectory": "apps/excel-draw-frontend/.next"
+   
   }
