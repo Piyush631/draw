@@ -5,8 +5,7 @@
       "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "installCommand": "npm install -g pnpm@8.6.12 && pnpm install --no-frozen-lockfile",
-        "buildCommand": "pnpm build"
+        "installCommand": "chmod +x build.sh && ./build.sh"
       }
     }
   ],
