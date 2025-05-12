@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "prisma generate --schema=./prisma/schema.prisma"
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    
+  "generate": "prisma generate --schema=./prisma/schema.prisma"
   },
   "exports":{"./db":"./src/db.ts"},
   "keywords": [],
