@@ -5,11 +5,14 @@
       "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "installCommand": "chmod +x build.sh && ./build.sh"
+        "installCommand": "npm install -g pnpm@8.6.12 && pnpm install --no-frozen-lockfile",
+        "buildCommand": "pnpm build"
       }
     }
   ],
   "env": {
     "NODE_VERSION": "20.x"
-  }
+  },
+  "buildCommand": null,
+  "installCommand": null
 } 
