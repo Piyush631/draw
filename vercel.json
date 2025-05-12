@@ -1,8 +1,7 @@
 
 {
-    "buildCommand": "pnpm install && pnpm build",
+    "buildCommand": "pnpm build",
     "installCommand": "pnpm install",
-    "outputDirectory": "dist",
-    "framework": "nextjs",
-    "packageManager": "pnpm@8.15.4"
+    "outputDirectory": "",
+    "rootDirectory": "apps/excel-draw-frontend"
   }
