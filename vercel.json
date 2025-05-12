@@ -1,6 +1,9 @@
 {
-    "buildCommand": "pnpm install --frozen-lockfile && pnpm run build",
+    "version": 2,
+    "buildCommand": "chmod +x build.sh && ./build.sh",
     "installCommand": "pnpm install --frozen-lockfile",
-    "outputDirectory": "apps/excel-draw-frontend/.next"
-   
-  }
+    "outputDirectory": "apps/excel-draw-frontend/.next",
+    "env": {
+      "NODE_VERSION": "20.x"
+    }
+}
