@@ -1,6 +1,10 @@
 {
-    "buildCommand": "pnpm --filter excel-draw-frontend build",
+    "version": 2,
+    "buildCommand": "pnpm vercel-build",
     "installCommand": "pnpm install",
     "outputDirectory": "apps/excel-draw-frontend/.next",
-    "framework": "nextjs"
+    "framework": "nextjs",
+    "env": {
+        "NODE_VERSION": "18"
+    }
 }
