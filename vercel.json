@@ -2,6 +2,5 @@
     "buildCommand": "pnpm --filter excel-draw-frontend build",
     "installCommand": "pnpm install",
     "outputDirectory": "apps/excel-draw-frontend/.next",
-    "framework": "nextjs",
-    "rootDirectory": "apps/excel-draw-frontend"
-  }
+    "framework": "nextjs"
+}
