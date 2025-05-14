@@ -1,11 +1,17 @@
 "use client";
+
 import { useEffect } from "react";
 import useSocket from "../hooks/useSocket";
 import Canvas from "./canvas";
+import Image from "next/image";
 
-export default function RoomCanvas({ id }: { id: string }) {
+type RoomCanvasProps = {
+  id: string;
+};
+
+export default function RoomCanvas({ id }: RoomCanvasProps) {
   const { loading, socket } = useSocket();
-  console.log(id);
+
   useEffect(() => {
     if (socket && !loading) {
       socket.send(
@@ -15,16 +21,24 @@ export default function RoomCanvas({ id }: { id: string }) {
         })
       );
     }
-  });
-  if (!socket) {
+  }, [socket, loading, id]);
+
+  if (loading || !socket) {
     return (
       <div className="h-screen w-screen bg-black">
-        <div className="h-full w-full flex justify-center items-center">
-          <img src="/1494.gif" className=""></img>
+        <div className="flex h-full w-full justify-center items-center">
+          <Image 
+            src="/1494.gif" 
+            alt="Loading animation"
+            width={200}
+            height={200}
+            priority
+          />
         </div>
       </div>
     );
   }
+
   return (
     <div>
       <Canvas roomId={id} socket={socket} />

@@ -609,7 +609,6 @@ export class Game {
 
         let shape: Shape | null = null;
         const selectedStroke = this.selectedStroke;
-        const selectedFill = this.selectedFill;
 
         if (this.selectedTool === "text") {
           shape = {

@@ -2,7 +2,6 @@
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { Game } from "../draw/Game";
-import { useRouter } from "next/navigation";
 import { SideBar } from "./canvas/sideBar";
 import { TopBar } from "./canvas/topBar";
 
@@ -38,7 +37,7 @@ export default function Canvas({ roomId, socket }: canva) {
   const [selectedStyle, setSelectedStyle] = useState<Dots>("solid");
 
   const [game, setGame] = useState<Game>();
-  const router = useRouter();
+
   useEffect(() => {
     const canvas = canvasref.current;
     if (!canvas) return;
@@ -52,19 +51,24 @@ export default function Canvas({ roomId, socket }: canva) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   useEffect(() => {
-    //@ts-ignore
+  
     game?.setTool(selectedTool);
   }, [selectedTool, game]);
+
   useEffect(() => {
     game?.setStroke(selectedStroke);
   }, [selectedStroke, game]);
+
   useEffect(() => {
     game?.setFill(selectedFill);
   }, [selectedFill, game]);
+
   useEffect(() => {
     game?.setWidth(selectedWidth);
   }, [selectedWidth, game]);
+
   useEffect(() => {
     game?.setStyle(selectedStyle);
   }, [selectedStyle, game]);
@@ -77,7 +81,7 @@ export default function Canvas({ roomId, socket }: canva) {
         g.destroy();
       };
     }
-  }, [canvasref]);
+  }, [canvasref, roomId, socket]);
 
   return (
     <div

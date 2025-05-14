@@ -1,18 +1,20 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { IoMenu } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
 import { GoPencil } from "react-icons/go";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+
 export function Header() {
   const [visible, setVisible] = useState(false);
   const [isToken, setIsToken] = useState(false);
   const router = useRouter();
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const handleScroll = () => {
+
+  const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
 
     if (currentScrollY > lastScrollY) {
@@ -22,13 +24,13 @@ export function Header() {
     }
 
     setLastScrollY(currentScrollY);
-  };
+  }, [lastScrollY]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, [handleScroll]);
+
   useEffect(() => {
     if (localStorage.getItem("token")) {
       setIsToken(true);
@@ -36,6 +38,7 @@ export function Header() {
       setIsToken(false);
     }
   }, []);
+
   return (
     <header
       id="header"

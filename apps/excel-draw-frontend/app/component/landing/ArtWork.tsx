@@ -1,11 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
+
 export function ArtWork() {
   const router = useRouter();
   const listVariant = {
     initial: {
-      
       opacity: 0,
       scale: 0.8, 
     },
@@ -16,42 +17,46 @@ export function ArtWork() {
         duration: 0.5,
         staggerChildren: 0.4, 
       } 
-    },viewport:{ once: true} 
+    },
+    viewport: { once: true } 
   };
   return (
-    < motion.div variants={listVariant} initial="initial"  whileInView="whileInView" viewport={{ once: true }}  id="artwork" className="lg:px-24  md:px-16 px-6 pt-24 w-full">
-      <motion.div variants={listVariant} className=" w-full text-5xl font-semibold text-center">
+    <motion.div variants={listVariant} initial="initial" whileInView="whileInView" viewport={{ once: true }} id="artwork" className="lg:px-24 md:px-16 px-6 pt-24 w-full">
+      <motion.div variants={listVariant} className="w-full text-5xl font-semibold text-center">
         Artwork Created with ArtCanvas
       </motion.div>
       <motion.div variants={listVariant} className="text-center pt-3 text-xl">
         Join thousands of artists creating masterpieces every day
       </motion.div>
-      <motion.div variants={listVariant} className="flex flex-wrap gap-8 pt-8 justify-center ">
-        <motion.div variants={listVariant}>
-          <img
-            src="./carton1.webp"
-            className="md:h-64  hover:p-2 hover:rounded-2xl w-full h-60 rounded-2xl "
-            alt=""
+      <motion.div variants={listVariant} className="flex flex-wrap gap-8 pt-8 justify-center">
+        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
+          <Image
+            src="/carton1.webp"
+            alt="Artwork example 1"
+            fill
+            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
           />
         </motion.div>
-        <motion.div variants={listVariant}>
-          <img
-            src="./carton2.webp"
-            className="md:h-64 h-60 hover:p-2 hover:rounded-2xl rounded-2xl w-full"
-            alt=""
+        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
+          <Image
+            src="/carton2.webp"
+            alt="Artwork example 2"
+            fill
+            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
           />
         </motion.div>
-        <motion.div variants={listVariant}>
-          <img
-            src="./carton1.webp"
-            className="md:h-64  h-60  hover:p-2 hover:rounded-2xl rounded-2xl w-full"
-            alt=""
+        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
+          <Image
+            src="/carton1.webp"
+            alt="Artwork example 3"
+            fill
+            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
           />
         </motion.div>
       </motion.div>
       <motion.div variants={listVariant} className="pt-28">
         <div className="text-center text-5xl">Start Creating Today</div>
-        <div className="text-center pt-4 text-lg ">
+        <div className="text-center pt-4 text-lg">
           Join our community of artists and bring your creative vision to life.
           Try ArtCanvas free for 14 days.
         </div>
