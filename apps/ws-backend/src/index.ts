@@ -63,7 +63,7 @@ ws.on("connection", function connection(ws, request) {
     ws,
   });
 
-  // Send initial connection success message
+
   ws.send(JSON.stringify({
     type: "connection",
     status: "connected",
