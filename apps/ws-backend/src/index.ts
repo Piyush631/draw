@@ -1,8 +1,9 @@
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import { client } from "@repo/database/db";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/common-backend/config";
+import * as jwt from "jsonwebtoken";
+import { JWT_SECRET, WS_PORT } from "@repo/common-backend/config";
+import * as bcrypt from "bcryptjs";
 
 // Use Render-assigned port or default to 8090 for local testing
 const PORT = process.env.PORT || 8090;
@@ -14,11 +15,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Attach WebSocket server to HTTP server
-const ws = new WebSocketServer({
-  server,
-  perMessageDeflate: false,
-  clientTracking: true
-});
+const ws = new WebSocketServer({ port: Number(WS_PORT) });
 
 server.listen(PORT, () => {
   console.log(`WebSocket server is running on port ${PORT}`);
