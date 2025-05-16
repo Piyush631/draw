@@ -174,17 +174,8 @@ importers:
   apps/ws-backend:
     dependencies:
       '@prisma/client':
-        specifier: 6.5.0
-        version: 6.5.0(typescript@5.8.2)
-      '@repo/common-backend':
-        specifier: workspace:*
-        version: link:../../packages/common-backend
-      '@repo/database':
-        specifier: workspace:*
-        version: link:../../packages/database
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
+        specifier: ^5.10.2
+        version: 5.10.2(prisma@5.10.2)
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.9
@@ -197,6 +188,22 @@ importers:
       ws:
         specifier: ^8.18.1
         version: 8.18.1
+    devDependencies:
+      '@repo/common-backend':
+        specifier: workspace:*
+        version: link:../../packages/common-backend
+      '@repo/common-validation':
+        specifier: workspace:*
+        version: link:../../packages/common-validation
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      prisma:
+        specifier: ^5.10.2
+        version: 5.10.2
 
   packages/common-backend:
     dependencies:
