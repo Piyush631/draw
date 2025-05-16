@@ -8,9 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
-        secondary: ["var(--font-secondary)"],
+        sans: ["var(--font-inter)"],
         lora: ["var(--font-lora)"],
       },
     },

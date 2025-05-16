@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React from "react";
 
 export function Icons({
   icon,
@@ -6,7 +6,7 @@ export function Icons({
   id,
   onClick,
 }: {
-  icon: ReactNode;
+  icon: React.ReactNode;
   activated?: boolean;
   id?: string;
   onClick?: () => void;

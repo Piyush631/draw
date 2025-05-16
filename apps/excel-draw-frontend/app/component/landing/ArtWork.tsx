@@ -21,56 +21,8 @@ export function ArtWork() {
     viewport: { once: true } 
   };
   return (
-    <motion.div variants={listVariant} initial="initial" whileInView="whileInView" viewport={{ once: true }} id="artwork" className="lg:px-24 md:px-16 px-6 pt-24 w-full">
-      <motion.div variants={listVariant} className="w-full text-5xl font-semibold text-center">
-        Artwork Created with ArtCanvas
-      </motion.div>
-      <motion.div variants={listVariant} className="text-center pt-3 text-xl">
-        Join thousands of artists creating masterpieces every day
-      </motion.div>
-      <motion.div variants={listVariant} className="flex flex-wrap gap-8 pt-8 justify-center">
-        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
-          <Image
-            src="/carton1.webp"
-            alt="Artwork example 1"
-            fill
-            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
-          />
-        </motion.div>
-        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
-          <Image
-            src="/carton2.webp"
-            alt="Artwork example 2"
-            fill
-            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
-          />
-        </motion.div>
-        <motion.div variants={listVariant} className="relative md:h-64 h-60 w-full">
-          <Image
-            src="/carton1.webp"
-            alt="Artwork example 3"
-            fill
-            className="hover:p-2 hover:rounded-2xl rounded-2xl object-cover"
-          />
-        </motion.div>
-      </motion.div>
-      <motion.div variants={listVariant} className="pt-28">
-        <div className="text-center text-5xl">Start Creating Today</div>
-        <div className="text-center pt-4 text-lg">
-          Join our community of artists and bring your creative vision to life.
-          Try ArtCanvas free for 14 days.
-        </div>
-        <div className="mx-auto w-full flex justify-center pt-4">
-          <button
-            onClick={() => {
-              router.push("/signin");
-            }}
-            className="bg-gradient-to-r cursor-pointer text-white bg-black hover:bg-white hover:text-black text-lg px-8 py-3 rounded-xl"
-          >
-            Start Now
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
+  <div>
+    hi
+  </div>
   );
 }
