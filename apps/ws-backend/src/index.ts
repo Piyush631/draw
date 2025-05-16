@@ -3,7 +3,7 @@ import { client } from "@repo/database/db";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/common-backend/config";
 
-const PORT = process.env.PORT || 8090;
+const PORT = process.env.PORT || 1000;
 const ws = new WebSocketServer({ port: Number(PORT) });
 
 console.log(`WebSocket server is running on port ${PORT}`);
