@@ -34,7 +34,14 @@ function checkuser(token: string): string | null {
 
 ws.on("connection", function connection(ws, request) {
   const url = request.url;
+  console.log(url);
   if (!url) {
+    console.log("No URL provided");
+    console.log(request);
+    console.log(ws);
+    console.log(request.headers);
+    console.log(request.socket);
+
     ws.close(1008, "No URL provided");
     return;
   }
