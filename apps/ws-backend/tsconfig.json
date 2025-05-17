@@ -1,9 +1,17 @@
 {
-    "extends":"@repo/typescript-config/base.json",
+    "extends": "@repo/typescript-config/base.json",
     "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./dist",
-      "moduleResolution": "node16",
-      "module": "node16"
-    }
+      "moduleResolution": "NodeNext",
+      "module": "NodeNext",
+      "target": "ES2022",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "resolveJsonModule": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
 }
