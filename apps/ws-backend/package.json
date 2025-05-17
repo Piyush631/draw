@@ -23,9 +23,7 @@
     "@repo/common-validation": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^20.11.24",
-    "prisma": "6.5.0",
-    "typescript": "^5.3.3"
+    "prisma": "6.5.0"
    
   },
   "keywords": [],

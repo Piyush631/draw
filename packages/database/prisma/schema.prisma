@@ -10,8 +10,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://database_owner:npg_gGc2jlWXk9Bi@ep-tiny-snowflake-a5c80a2z-pooler.us-east-2.aws.neon.tech/database?sslmode=require"
 }
+
 model User{
   id String @id @default(uuid())
   email String @unique
@@ -20,8 +21,8 @@ model User{
   photo String?
   rooms Room[]
   chats Chat[]
-
 }
+
 model Room{
   id Int @id @default(autoincrement())
   slug String @unique
@@ -30,6 +31,7 @@ model Room{
    admin User @relation(fields: [admin_id],references: [id])
    chat Chat[]
 }
+
 model Chat {
    id String @id @default(uuid())
   message String
@@ -38,6 +40,7 @@ model Chat {
   room Room @relation(fields: [roomid],references: [id])
   user User @relation(fields: [userid],references: [id])
 }
+
 model otp{
   id Int @id @default(autoincrement())
   email String @unique
