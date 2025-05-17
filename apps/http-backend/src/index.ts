@@ -81,9 +81,11 @@ console.log("hi",user)
       //@ts-ignore
       user.password
     );
+    console.log("hi",passwordmatch)
     if (!passwordmatch) {
-      res.json({
+      res.status(401).json({
         msg: "Incorrect password",
+        error: "Authentication failed - invalid password"
       });
       return;
     }
