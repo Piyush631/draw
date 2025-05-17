@@ -12,7 +12,7 @@
 
   
   "dependencies": {
-    "@prisma/client": "^5.10.2",
+    "@prisma/client": "6.5.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/ws": "^8.18.0",
     "jsonwebtoken": "^9.0.2",
@@ -23,7 +23,7 @@
     "@repo/common-validation": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "prisma": "^5.10.2"
+    "prisma": "6.5.0"
    
   },
   "keywords": [],
