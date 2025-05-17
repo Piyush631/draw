@@ -74,7 +74,7 @@ app.post("/signin", async (req, res) => {
         msg: "username not found",
       });
     }
-
+console.log("hi",user)
     //@ts-ignore
     const passwordmatch = await bcrypt.compare(
       parsedData.data.password,
@@ -87,13 +87,15 @@ app.post("/signin", async (req, res) => {
       });
       return;
     }
-
+console.log("hi",user?.id)
+console.log("hi",JWT_SECRET)
     const token = jwt.sign(
       {
         userId: user?.id,
       },
       JWT_SECRET
     );
+    console.log("hi",token)
 
     res.json({
       token,
