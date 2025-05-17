@@ -18,6 +18,8 @@ const users: usersType[] = [];
 
 function checkuser(token: string): string | null {
   try {
+    console.log("hi",token);
+    console.log("jwt",JWT_SECRET);
     const decoded = jwt.verify(token, JWT_SECRET);
     console.log("hi",decoded);
     if (typeof decoded === "string") {
