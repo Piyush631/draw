@@ -19,6 +19,7 @@ const users: usersType[] = [];
 function checkuser(token: string): string | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("hi",decoded);
     if (typeof decoded === "string") {
       return null;
     }
@@ -42,7 +43,9 @@ ws.on("connection", function connection(ws, request) {
   }
 
   const queryparams = new URLSearchParams(url.split("?")[1]);
+  console.log("hi",queryparams);
   const token = queryparams.get("token") || "";
+  console.log("hi",token);
   const userId = checkuser(token);
 
   if (userId === null) {
