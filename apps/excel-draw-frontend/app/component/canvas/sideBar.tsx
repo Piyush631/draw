@@ -21,7 +21,7 @@ export function SideBar({
   setSelectedStyle: (d: Dots) => void;
 }) {
   return (
-    <div className="absolute h-auto w-44 top-30 left-0 right-0 ">
+    <div className="absolute h-auto w-44 top-24 left-0 right-0 ">
       <div className="px-2  pb-3 pt-3 h-full  text-white gap-6  w-full rounded-r-lg flex flex-col bg-neutral-800">
         <div>
           <div className="text-sm ">Stroke</div>

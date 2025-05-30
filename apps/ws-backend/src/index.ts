@@ -18,10 +18,10 @@ const users: usersType[] = [];
 
 function checkuser(token: string): string | null {
   try {
-    console.log("hi",token);
-    console.log("jwt",JWT_SECRET);
+    console.log("hi", token);
+    console.log("jwt", JWT_SECRET);
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("hi",decoded);
+    console.log("hi", decoded);
     if (typeof decoded === "string") {
       return null;
     }
@@ -37,17 +37,16 @@ function checkuser(token: string): string | null {
 
 ws.on("connection", function connection(ws, request) {
   const url = request.url;
-  console.log("hi",url);
+  console.log("hi", url);
   if (!url) {
- 
     ws.close(1008, "No URL provided");
     return;
   }
 
   const queryparams = new URLSearchParams(url.split("?")[1]);
-  console.log("hi",queryparams);
+  console.log("hi", queryparams);
   const token = queryparams.get("token") || "";
-  console.log("hi",token);
+  console.log("hi", token);
   const userId = checkuser(token);
 
   if (userId === null) {
@@ -56,7 +55,7 @@ ws.on("connection", function connection(ws, request) {
   }
 
   // Remove any existing connection for this user
-  const existingUserIndex = users.findIndex(u => u.userId === userId);
+  const existingUserIndex = users.findIndex((u) => u.userId === userId);
   if (existingUserIndex !== -1) {
     const existingUser = users[existingUserIndex];
     if (existingUser) {
@@ -159,7 +158,7 @@ ws.on("connection", function connection(ws, request) {
   });
 
   ws.on("close", () => {
-    const userIndex = users.findIndex(u => u.ws === ws);
+    const userIndex = users.findIndex((u) => u.ws === ws);
     if (userIndex !== -1) {
       users.splice(userIndex, 1);
       console.log(`User ${userId} disconnected. Total users: ${users.length}`);
