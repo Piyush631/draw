@@ -35,7 +35,7 @@ function checkuser(token: string): string | null {
   }
 }
 
-ws.on("connection", function connection(ws, request) {
+ws.on("connection", function connection(ws: WebSocket, request: any) {
   const url = request.url;
   console.log("hi", url);
   if (!url) {
@@ -72,7 +72,7 @@ ws.on("connection", function connection(ws, request) {
 
   console.log(`User ${userId} connected. Total users: ${users.length}`);
 
-  ws.on("message", async function message(data) {
+  ws.on("message", async function message(data: any) {
     try {
       let parsedData;
       if (typeof data !== "string") {
@@ -165,7 +165,7 @@ ws.on("connection", function connection(ws, request) {
     }
   });
 
-  ws.on("error", (error) => {
+  ws.on("error", (error: Error) => {
     console.error(`WebSocket error for user ${userId}:`, error);
   });
 });
