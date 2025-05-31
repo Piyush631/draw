@@ -13,6 +13,7 @@ interface usersType {
   rooms: string[];
   userId: string;
   isAlive: boolean;
+  lastPing: number;
 }
 
 const users: usersType[] = [];
@@ -39,15 +40,19 @@ function checkuser(token: string): string | null {
 
 // Set up ping interval
 const interval = setInterval(() => {
+  const now = Date.now();
   users.forEach((user) => {
-    if (!user.isAlive) {
-      console.log(`User ${user.userId} connection timed out`);
+    if (!user.isAlive && (now - user.lastPing) > PONG_TIMEOUT) {
+      console.log(`User ${user.userId} connection timed out after ${now - user.lastPing}ms`);
       user.ws.terminate();
       return;
     }
     
-    user.isAlive = false;
-    user.ws.ping();
+    if (user.isAlive) {
+      user.isAlive = false;
+      user.lastPing = now;
+      user.ws.ping();
+    }
   });
 }, PING_INTERVAL);
 
@@ -72,6 +77,7 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
   if (existingUserIndex !== -1) {
     const existingUser = users[existingUserIndex];
     if (existingUser) {
+      console.log(`Closing existing connection for user ${userId}`);
       existingUser.ws.close(1000, "New connection established");
       users.splice(existingUserIndex, 1);
     }
@@ -81,7 +87,8 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     userId,
     rooms: [],
     ws,
-    isAlive: true
+    isAlive: true,
+    lastPing: Date.now()
   };
 
   users.push(newUser);
@@ -93,6 +100,7 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     const user = users.find(u => u.ws === ws);
     if (user) {
       user.isAlive = true;
+      console.log(`Received pong from user ${userId}`);
     }
   });
 
@@ -108,16 +116,22 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
       if (parsedData.type === "join") {
         const user = users.find((x) => x.ws === ws);
         if (user) {
-          user.rooms.push(parsedData.roomId);
-          console.log(`User ${userId} joined room ${parsedData.roomId}`);
+          // Check if user is already in the room
+          if (!user.rooms.includes(parsedData.roomId)) {
+            user.rooms.push(parsedData.roomId);
+            console.log(`User ${userId} joined room ${parsedData.roomId}. Current rooms: ${user.rooms.join(', ')}`);
+          } else {
+            console.log(`User ${userId} already in room ${parsedData.roomId}`);
+          }
         }
       }
 
       if (parsedData.type === "leave") {
         const user = users.find((x) => x.ws === ws);
         if (user) {
+          const previousRooms = [...user.rooms];
           user.rooms = user.rooms.filter((x) => x !== parsedData.room);
-          console.log(`User ${userId} left room ${parsedData.room}`);
+          console.log(`User ${userId} left room ${parsedData.room}. Previous rooms: ${previousRooms.join(', ')}. Current rooms: ${user.rooms.join(', ')}`);
         }
       }
 
@@ -181,11 +195,13 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     }
   });
 
-  ws.on("close", () => {
+  ws.on("close", (code, reason) => {
     const userIndex = users.findIndex((u) => u.ws === ws);
     if (userIndex !== -1) {
+      const user = users[userIndex];
+      console.log(`User ${userId} disconnected with code ${code} and reason: ${reason}. Rooms: ${user.rooms.join(', ')}`);
       users.splice(userIndex, 1);
-      console.log(`User ${userId} disconnected. Total users: ${users.length}`);
+      console.log(`Total users after disconnect: ${users.length}`);
     }
   });
 
@@ -193,7 +209,10 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     console.error(`WebSocket error for user ${userId}:`, error);
     const userIndex = users.findIndex((u) => u.ws === ws);
     if (userIndex !== -1) {
+      const user = users[userIndex];
+      console.log(`Removing user ${userId} due to error. Rooms: ${user.rooms.join(', ')}`);
       users.splice(userIndex, 1);
+      console.log(`Total users after error: ${users.length}`);
     }
   });
 });
