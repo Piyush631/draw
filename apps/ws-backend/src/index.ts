@@ -14,9 +14,12 @@ interface usersType {
   userId: string;
   isAlive: boolean;
   lastPing: number;
+  connectionTime: number;
 }
 
 const users: usersType[] = [];
+const RECENT_CONNECTIONS = new Map<string, number>();
+const CONNECTION_COOLDOWN = 2000; // 2 seconds cooldown between reconnections
 
 // Ping interval in milliseconds
 const PING_INTERVAL = 30000;
@@ -72,14 +75,34 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     return;
   }
 
+  const now = Date.now();
+  const lastConnection = RECENT_CONNECTIONS.get(userId);
+  
+  // Check if this is a rapid reconnection
+  if (lastConnection && (now - lastConnection) < CONNECTION_COOLDOWN) {
+    console.log(`Rapid reconnection detected for user ${userId}. Ignoring.`);
+    ws.close(1000, "Rapid reconnection detected");
+    return;
+  }
+
+  // Update last connection time
+  RECENT_CONNECTIONS.set(userId, now);
+
   // Remove any existing connection for this user
   const existingUserIndex = users.findIndex((u) => u.userId === userId);
   if (existingUserIndex !== -1) {
     const existingUser = users[existingUserIndex];
     if (existingUser) {
-      console.log(`Closing existing connection for user ${userId}`);
-      existingUser.ws.close(1000, "New connection established");
-      users.splice(existingUserIndex, 1);
+      // Only close if the connection is older than the cooldown period
+      if (now - existingUser.connectionTime > CONNECTION_COOLDOWN) {
+        console.log(`Closing existing connection for user ${userId} (age: ${now - existingUser.connectionTime}ms)`);
+        existingUser.ws.close(1000, "New connection established");
+        users.splice(existingUserIndex, 1);
+      } else {
+        console.log(`Ignoring new connection for user ${userId} (existing connection is too recent)`);
+        ws.close(1000, "Connection already exists");
+        return;
+      }
     }
   }
 
@@ -88,7 +111,8 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     rooms: [],
     ws,
     isAlive: true,
-    lastPing: Date.now()
+    lastPing: now,
+    connectionTime: now
   };
 
   users.push(newUser);
