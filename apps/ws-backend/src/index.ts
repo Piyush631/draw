@@ -12,16 +12,18 @@ interface usersType {
   ws: WebSocket;
   rooms: string[];
   userId: string;
+  isAlive: boolean;
 }
 
 const users: usersType[] = [];
 
+// Ping interval in milliseconds
+const PING_INTERVAL = 30000;
+const PONG_TIMEOUT = 10000;
+
 function checkuser(token: string): string | null {
   try {
-    console.log("hi", token);
-    console.log("jwt", JWT_SECRET);
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("hi", decoded);
     if (typeof decoded === "string") {
       return null;
     }
@@ -35,18 +37,29 @@ function checkuser(token: string): string | null {
   }
 }
 
+// Set up ping interval
+const interval = setInterval(() => {
+  users.forEach((user) => {
+    if (!user.isAlive) {
+      console.log(`User ${user.userId} connection timed out`);
+      user.ws.terminate();
+      return;
+    }
+    
+    user.isAlive = false;
+    user.ws.ping();
+  });
+}, PING_INTERVAL);
+
 ws.on("connection", function connection(ws: WebSocket, request: any) {
   const url = request.url;
-  console.log("hi", url);
   if (!url) {
     ws.close(1008, "No URL provided");
     return;
   }
 
   const queryparams = new URLSearchParams(url.split("?")[1]);
-  console.log("hi", queryparams);
   const token = queryparams.get("token") || "";
-  console.log("hi", token);
   const userId = checkuser(token);
 
   if (userId === null) {
@@ -64,13 +77,24 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
     }
   }
 
-  users.push({
+  const newUser = {
     userId,
     rooms: [],
     ws,
-  });
+    isAlive: true
+  };
+
+  users.push(newUser);
 
   console.log(`User ${userId} connected. Total users: ${users.length}`);
+
+  // Set up ping/pong handlers
+  ws.on('pong', () => {
+    const user = users.find(u => u.ws === ws);
+    if (user) {
+      user.isAlive = true;
+    }
+  });
 
   ws.on("message", async function message(data: any) {
     try {
@@ -167,5 +191,14 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
 
   ws.on("error", (error: Error) => {
     console.error(`WebSocket error for user ${userId}:`, error);
+    const userIndex = users.findIndex((u) => u.ws === ws);
+    if (userIndex !== -1) {
+      users.splice(userIndex, 1);
+    }
   });
+});
+
+// Clean up on server shutdown
+ws.on('close', () => {
+  clearInterval(interval);
 });
