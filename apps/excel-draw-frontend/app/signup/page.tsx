@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { Header } from "../component/landing/Header";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Slide, toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const formSchema = z.object({
   email: z
     .string()
@@ -27,35 +29,12 @@ const formSchema = z.object({
         "Should Contain at least one uppercase letter and have a minimum length of 5 characters.",
     }),
 });
+
 type formData = z.infer<typeof formSchema>;
+
 export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [password, setPassword] = useState("");
   const router = useRouter();
-  async function submitData() {
-    setLoading(true);
-    const response = await axios.post(`${BACKEND_URL}/signup`, {
-      email: email,
-      name: name,
-      password: password,
-    });
-    setLoading(false);
-    console.log(response);
-    console.log("hlo2");
-    console.log(response.status);
-    console.log("hlo3");
-    console.log(response.data.msg);
-    if (response.data.msg === "signup") {
-      toast.success("Signup successfully");
-      router.push("/signin");
-    } else if (response.data.msg === "User already exist") {
-      toast.error("User already exits");
-    } else {
-      toast.error("error");
-    }
-  }
 
   const {
     register,
@@ -64,72 +43,84 @@ export default function SignUp() {
   } = useForm<formData>({
     resolver: zodResolver(formSchema),
   });
-  const onSubmit = (data: formData) => {};
+
+  const onSubmit = async (data: formData) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${BACKEND_URL}/signup`, {
+        email: data.email,
+        name: data.name,
+        password: data.password,
+      });
+
+      if (response.data.msg === "User created successfully") {
+        toast.success("Signup successful!");
+        router.push("/signin");
+      } else if (response.data.msg === "User already exist") {
+        toast.error("User already exists");
+      } else {
+        toast.error("An error occurred during signup");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("An error occurred during signup");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="h-screen overflow-hidden">
       <Header />
-      <div className="  bg-gray-200 lg:pt-8 md:pt-16 pt-20 overflow-hidden h-screen mt-12 flex   justify-center  w-full ">
-        <div className=" lg:w-[40%]  h-full  hidden lg:block  ">
+      <div className="bg-gray-200 lg:pt-8 md:pt-16 pt-20 overflow-hidden h-screen mt-12 flex justify-center w-full">
+        <div className="lg:w-[40%] h-full hidden lg:block">
           <img src="./signin2.jpg" className="" alt="" />
         </div>
-        <div className="  px-6 py-4   flex flex-col bg-white pt-12  gap-4  lg:h-full md:h-1/2  lg:w-[40%]  w-full md:w-1/2 ">
+        <div className="px-6 py-4 flex flex-col bg-white pt-12 gap-4 lg:h-full md:h-1/2 lg:w-[40%] w-full md:w-1/2">
           <div className="flex flex-col px-16 gap-1">
             <div className="text-3xl font-semibold">Welcome back</div>
             <div className="text-black/70">
               Welcome back! please create your account
             </div>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex  px-16 flex-col gap-1">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex px-16 flex-col gap-1">
               <div>
-                Email <span className="text-red-600 ">*</span>
+                Email <span className="text-red-600">*</span>
               </div>
               <input
                 {...register("email")}
                 type="text"
                 className="px-2 py-2 border-gray-300 border-1 rounded-xl"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
                 placeholder="Enter your email"
               />
               {errors.email && (
                 <p className="text-red-600">{errors.email.message}</p>
               )}
             </div>
-            <div className="flex  px-16 flex-col gap-1">
+            <div className="flex px-16 flex-col gap-1">
               <div>
-                Name <span className="text-red-600 ">*</span>
+                Name <span className="text-red-600">*</span>
               </div>
               <input
                 {...register("name")}
                 type="text"
                 className="px-2 py-2 border-gray-300 border-1 rounded-xl"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
                 placeholder="Enter your name"
               />
               {errors.name && (
-                <p className="text-red-600"> {errors.name.message}</p>
+                <p className="text-red-600">{errors.name.message}</p>
               )}
             </div>
 
-            <div className="flex  px-16 flex-col gap-1">
+            <div className="flex px-16 flex-col gap-1">
               <div>
-                Password <span className="text-red-600 ">*</span>
+                Password <span className="text-red-600">*</span>
               </div>
               <input
                 {...register("password")}
                 type="password"
                 className="px-2 py-2 border-gray-300 border-1 rounded-xl"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
                 placeholder="Enter password"
               />
               {errors.password && (
@@ -138,12 +129,13 @@ export default function SignUp() {
             </div>
             <div className="px-16">
               <button
-                className="w-full bg-black mt-3  px-2 py-2  text-white  cursor-pointer rounded-xl"
-                onClick={submitData}
+                type="submit"
+                className="w-full bg-black mt-3 px-2 py-2 text-white cursor-pointer rounded-xl"
+                disabled={loading}
               >
                 {loading ? (
                   <div className="flex justify-center">
-                    <img src="./1488.gif" className="h-6 w-6 text-center" />
+                    <img src="./1488.gif" className="h-6 w-6 text-center" alt="loading" />
                   </div>
                 ) : (
                   "Signup"
@@ -165,10 +157,10 @@ export default function SignUp() {
 
           <ToastContainer
             position="top-center"
-            autoClose={1900}
-            hideProgressBar
+            autoClose={3000}
+            hideProgressBar={false}
             newestOnTop={false}
-            closeOnClick={false}
+            closeOnClick
             rtl={false}
             pauseOnFocusLoss
             draggable

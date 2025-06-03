@@ -34,8 +34,9 @@ app.post("/signup", async (req, res) => {
     });
     if (user) {
       res.status(402).json({
-        msg: "user alerady exist",
+        msg: "User already exist",
       });
+      return;
     }
     const data = await client.user.create({
       data: {
