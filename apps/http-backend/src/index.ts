@@ -32,6 +32,7 @@ app.post("/signup", async (req, res) => {
         email: parsedData.data.email,
       },
     });
+    console.log(user);
     if (user) {
       res.status(402).json({
         msg: "User already exist",
