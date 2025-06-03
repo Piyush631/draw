@@ -52,19 +52,18 @@ export default function SignUp() {
         name: data.name,
         password: data.password,
       });
-      console.log(response.data);
-      console.log(response.data.msg);
+
       if (response.data.msg === "User created successfully") {
         toast.success("Signup successful!");
         router.push("/signin");
-      } else if (response.data.msg === "User already exist") { 
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      if (error.response?.status === 402) {
         toast.error("User already exists");
       } else {
-        toast.error("An error occurred during signup");
+        toast.error(error.response?.data?.msg || "An error occurred during signup");
       }
-    } catch (error) {
-      console.error("Signup error:", error);
-      toast.error("An error occurred during signup");
     } finally {
       setLoading(false);
     }
