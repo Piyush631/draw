@@ -86,7 +86,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="h-screen ">
+    <div className="h-screen hidden ">
       <Header />
       <div className="mt-14 lg:pt-8 md:pt-16 pt-20 overflow-hidden  flex items-center  justify-around  w-full ">
         <div className=" lg:w-1/3  w-1/2 h-1/2 hidden md:block rounded-xl ">

@@ -137,12 +137,12 @@ export default function SignIn() {
           <div className="text-center text-xl hidden  ">or </div>
           <div className="px-16">
             <button
-              className="w-full bg-black mt-3  px-2 py-2  text-white  cursor-pointer rounded-xl"
+              className="w-full bg-black mt-3 hidden  px-2 py-2  text-white  cursor-pointer rounded-xl"
               onClick={() => {
                 router.push("/emaillogin");
               }}
             >
-              <div className="justify-center hidden">Log in with otp</div>
+              <div className="justify-center  hidden">Log in with otp</div>
             </button>
           </div>
 

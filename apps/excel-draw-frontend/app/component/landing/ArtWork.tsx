@@ -22,7 +22,7 @@ export function ArtWork() {
   };
   return (
   <div>
-    hi
+    
   </div>
   );
 }
