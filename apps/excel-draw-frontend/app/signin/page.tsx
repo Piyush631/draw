@@ -31,19 +31,29 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   async function SignIn() {
-    setLoading(true);
-    const response = await axios.post(`${BACKEND_URL}/signin`, {
-      email: email,
-      password: password,
-    });
-    setLoading(false);
+    try {
+      setLoading(true);
+      const response = await axios.post(`${BACKEND_URL}/signin`, {
+        email: email,
+        password: password,
+      });
+      setLoading(false);
+  
+      if (response.data.token) {
+        toast.success("Login successfully");
+        localStorage.setItem("token", response.data.token);
+        router.push("/room");
+      } 
 
-    if (response.data.token) {
-      toast.success("Login successfully");
-      localStorage.setItem("token", response.data.token);
-      router.push("/room");
-    } else {
-      toast.error("Invalid username and password");
+    }catch(error:any){
+      if(error.response?.status === 403){
+        toast.error("Invalid username and password");
+      }
+      else{
+        toast.error(error.response?.data?.msg || "An error occurred during signin");
+      }
+    } finally {
+      setLoading(false);
     }
   }
   const {

@@ -182,26 +182,29 @@ export default function Room() {
 
       {/* Create Room Modal */}
       {createRoom && (
-        <div className="absolute backdrop backdrop-blur-2xl md:left-50 bottom-0 top-50 lg:left-100 h-56 lg:w-1/3 md:w-1/2 w-full bg-gray-200 px-5 py-4 rounded-2xl">
-          <div className="text-3xl flex justify-end">
-            <span onClick={() => setCreateRoom(false)}>
-              <IoClose />
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-xl font-semibold">Create Room</div>
-            <div className="text-gray-500">Enter Room Name</div>
-            <input
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
-              type="text"
-              placeholder="Enter Room Name"
-            />
-            <div className="flex justify-center pt-2">
-              <button onClick={CreateRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl">
-                Create
-              </button>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setCreateRoom(false)}></div>
+          <div className="relative bg-white px-5 py-4 rounded-2xl w-full max-w-md mx-4">
+            <div className="text-3xl flex justify-end">
+              <span onClick={() => setCreateRoom(false)} className="cursor-pointer">
+                <IoClose />
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="text-xl font-semibold">Create Room</div>
+              <div className="text-gray-500">Enter Room Name</div>
+              <input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
+                type="text"
+                placeholder="Enter Room Name"
+              />
+              <div className="flex justify-center pt-2">
+                <button onClick={CreateRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                  Create
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -209,26 +212,29 @@ export default function Room() {
 
       {/* Join Room Modal */}
       {joinRoom && (
-        <div className="absolute backdrop backdrop-blur-2xl md:left-50 bottom-0 top-50 lg:left-100 h-56 lg:w-1/3 md:w-1/2 w-full bg-gray-200 px-5 py-4 rounded-2xl">
-          <div className="text-3xl flex justify-end">
-            <span onClick={() => setJoinRoom(false)}>
-              <IoClose />
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-xl font-semibold">Join Room</div>
-            <div className="text-gray-500">Enter Room Name</div>
-            <input
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
-              type="text"
-              placeholder="Enter Room Name"
-            />
-            <div className="flex justify-center pt-2">
-              <button onClick={EnterRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl">
-                Join
-              </button>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setJoinRoom(false)}></div>
+          <div className="relative bg-white px-5 py-4 rounded-2xl w-full max-w-md mx-4">
+            <div className="text-3xl flex justify-end">
+              <span onClick={() => setJoinRoom(false)} className="cursor-pointer">
+                <IoClose />
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="text-xl font-semibold">Join Room</div>
+              <div className="text-gray-500">Enter Room Name</div>
+              <input
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
+                type="text"
+                placeholder="Enter Room Name"
+              />
+              <div className="flex justify-center pt-2">
+                <button onClick={EnterRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                  Join
+                </button>
+              </div>
             </div>
           </div>
         </div>

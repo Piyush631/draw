@@ -82,6 +82,7 @@ app.post("/signin", async (req, res) => {
       res.status(403).json({
         msg: "username not found",
       });
+      return;
     }
 
     //@ts-ignore
@@ -91,7 +92,7 @@ app.post("/signin", async (req, res) => {
       user.password
     );
     if (!passwordmatch) {
-      res.status(401).json({
+      res.status(403).json({
         msg: "Incorrect password",
         error: "Authentication failed - invalid password",
       });
@@ -203,7 +204,7 @@ app.post("/email-login", async (req, res) => {
       },
     });
     if (!user) {
-      res.json({
+      res.status(401).json({
         msg: "user not found",
       });
       return;
@@ -239,20 +240,20 @@ app.post("/verify-otp", async (req, res) => {
     });
 
     if (!user) {
-      res.json({
-        msg: "Invalid OTP",
+      res.status(401).json({
+        msg: "No email exist",
       });
       return;
     }
 
     if (user.expired_At <= new Date()) {
-      res.json({
+      res.status(402).json({
         msg: "otp expired",
       });
       return;
     }
     if (user.otp !== otp) {
-      res.json({
+      res.status(403).json({
         msg: "invalid otp",
       });
       return;

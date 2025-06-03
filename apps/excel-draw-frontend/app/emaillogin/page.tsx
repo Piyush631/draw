@@ -43,18 +43,35 @@ export default function SignIn() {
   }
 
   async function SignOtp() {
-    setLoading(true);
-    const response = await axios.post(`${BACKEND_URL}/email-login`, {
-      email: email,
-    });
-    setLoading(false);
-    if (response.data) {
-      setShowotp(true);
-      toast.success("Otp sent successfully");
-    } else {
-      toast.error("Invalid email");
+    try {
+      setLoading(true);
+      const response = await axios.post(`${BACKEND_URL}/email-login`, {
+        email: email,
+      });
+      setLoading(false);
+      if (response.data.token) {
+        toast.success("Login successfully");
+        localStorage.setItem("token", response.data.token);
+        router.push("/room");
+      } 
+
+    }catch(error:any){
+      if(error.response?.status === 401){
+        toast.error("Invalid email");
+      }else if(error.response?.status === 402){
+        toast.error("Otp expired");
+      }else if(error.response?.status === 403){
+        toast.error("Invalid otp");
+      }
+      else{
+        toast.error(error.response?.data?.msg || "An error occurred during signin");
+      }
+    } finally {
+      setLoading(false);
     }
   }
+   
+
 
   const {
     register,
@@ -71,7 +88,7 @@ export default function SignIn() {
   return (
     <div className="h-screen ">
       <Header />
-      <div className=" lg:pt-8 md:pt-16 pt-20 overflow-hidden  flex items-center  justify-around  w-full ">
+      <div className="mt-14 lg:pt-8 md:pt-16 pt-20 overflow-hidden  flex items-center  justify-around  w-full ">
         <div className=" lg:w-1/3  w-1/2 h-1/2 hidden md:block rounded-xl ">
           <Image
             src="/signup2.png"
