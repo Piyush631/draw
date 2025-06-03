@@ -17,18 +17,26 @@ app.use(express.json());
 app.use(cors());
 app.post("/signup", async (req, res) => {
   const parsedData = signupValidation.safeParse(req.body);
-  console.log(req.body);
+
   if (!parsedData.success) {
     res.status(400).json({
       msg: parsedData.error,
     });
-    console.log(parsedData);
     return;
   }
-  console.log(parsedData.data)
+
   const hashedPassword = await bcrypt.hash(parsedData.data.password, 5);
-  console.log(hashedPassword);
   try {
+    const user = await client.user.findFirst({
+      where: {
+        email: parsedData.data.email,
+      },
+    });
+    if (user) {
+      res.status(402).json({
+        msg: "user alerady exist",
+      });
+    }
     const data = await client.user.create({
       data: {
         email: parsedData.data.email,
@@ -36,18 +44,17 @@ app.post("/signup", async (req, res) => {
         password: hashedPassword,
       },
     });
-    console.log(data)
+
     res.status(201).json({
       msg: "User created successfully",
       user: {
         id: data.id,
         email: data.email,
-        name: data.name
-      }
+        name: data.name,
+      },
     });
     return;
   } catch (error) {
-    console.log(error)
     res.status(500).json({
       msg: "Internal server error",
     });
@@ -57,7 +64,7 @@ app.post("/signup", async (req, res) => {
 app.post("/signin", async (req, res) => {
   const parsedData = signinValidation.safeParse(req.body);
   if (!parsedData.success) {
-    res.json({
+    res.status(402).json({
       msg: parsedData.error,
     });
     return;
@@ -70,40 +77,35 @@ app.post("/signin", async (req, res) => {
       },
     });
     if (!user) {
-      res.json({
+      res.status(403).json({
         msg: "username not found",
       });
     }
-console.log("hi",user)
+
     //@ts-ignore
     const passwordmatch = await bcrypt.compare(
       parsedData.data.password,
       //@ts-ignore
       user.password
     );
-    console.log("hi",passwordmatch)
     if (!passwordmatch) {
       res.status(401).json({
         msg: "Incorrect password",
-        error: "Authentication failed - invalid password"
+        error: "Authentication failed - invalid password",
       });
       return;
     }
-console.log("hi",user?.id)
-console.log("hi",JWT_SECRET)
     const token = jwt.sign(
       {
         userId: user?.id,
       },
       JWT_SECRET
     );
-    console.log("hi",token)
-
     res.json({
       token,
     });
   } catch (error) {
-    res.json({
+    res.status(404).json({
       msg: "user is not exist please signup first",
     });
   }

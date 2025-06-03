@@ -42,7 +42,11 @@ export default function SignUp() {
       password: password,
     });
     setLoading(false);
+    console.log(response);
+    console.log("hlo2");
     console.log(response.status);
+    console.log("hlo3");
+    console.log(response.data.msg);
     if (response.data.msg === "signup") {
       toast.success("Signup successfully");
       router.push("/signin");
@@ -60,9 +64,7 @@ export default function SignUp() {
   } = useForm<formData>({
     resolver: zodResolver(formSchema),
   });
-  const onSubmit = (data: formData) => {
-    console.log(data);
-  };
+  const onSubmit = (data: formData) => {};
 
   return (
     <div className="h-screen overflow-hidden">
