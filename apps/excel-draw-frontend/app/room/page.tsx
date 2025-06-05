@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaSquarePlus, FaArrowRightLong } from "react-icons/fa6";
 import { IoPeopleSharp, IoClose } from "react-icons/io5";
-import { Slide, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { FaRegCopy } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -240,20 +240,6 @@ export default function Room() {
           </div>
         </div>
       )}
-
-<ToastContainer
-            position="top-center"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Slide}
-          />
     </div>
   );
 }
