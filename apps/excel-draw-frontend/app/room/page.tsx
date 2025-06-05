@@ -77,7 +77,7 @@ export default function Room() {
         setSlug(""); 
         fetchData(); 
       } else {
-        alert("Room already exists!");
+        toast.error("Room already exists!");
       }
     } catch (err) {
       
