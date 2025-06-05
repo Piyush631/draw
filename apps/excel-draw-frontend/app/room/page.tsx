@@ -10,7 +10,7 @@ import { Slide, toast, ToastContainer } from "react-toastify";
 import { FaRegCopy } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import { RiDeleteBinLine } from "react-icons/ri";
-import Image from "next/image";
+
 
 interface RoomData {
   slug: string;
@@ -74,6 +74,7 @@ export default function Room() {
 
       if (response.data.msg === "success") {
         toast.success("Room Created Successfully!", {
+          icon: false,
           position: "top-center",
           autoClose: 2000,
           hideProgressBar: false,
@@ -82,10 +83,11 @@ export default function Room() {
           draggable: true,
         });
         setCreateRoom(false);
-        setSlug(""); // Clear the input
-        fetchData(); // Refresh the room list
+        setSlug(""); 
+        fetchData(); 
       } else {
         toast.error("Room already exists!", {
+          icon: false,
           position: "top-center",
           autoClose: 2000,
           hideProgressBar: false,
@@ -97,6 +99,7 @@ export default function Room() {
     } catch (err) {
       console.error("Error creating room", err);
       toast.error("Failed to create room. Please try again.", {
+        icon: false,
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -172,7 +175,7 @@ export default function Room() {
             </div>
             {loading ? (
               <div className="flex justify-center">
-                <Image src="/1495.gif" alt="Loading" width={96} height={96} />
+                <img src="/1495.gif" alt="Loading" width={96} height={96} />
               </div>
             ) : (
               allData.map((m) => (
