@@ -29,8 +29,8 @@ export default function RoomCanvas({ id }: RoomCanvasProps) {
           <img
             src="/1494.gif" 
             alt="Loading animation"
-            width={200}
-            height={200}
+            width={50}
+            height={50}
           
           />
         </div>

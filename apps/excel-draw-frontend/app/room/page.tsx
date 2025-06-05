@@ -73,40 +73,15 @@ export default function Room() {
       );
 
       if (response.data.msg === "success") {
-        toast.success("Room Created Successfully!", {
-          icon: false,
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.success("Room Created Successfully");
         setCreateRoom(false);
         setSlug(""); 
         fetchData(); 
       } else {
-        toast.error("Room already exists!", {
-          icon: false,
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.error("Room already exists!");
       }
     } catch (err) {
-      console.error("Error creating room", err);
-      toast.error("Failed to create room. Please try again.", {
-        icon: false,
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Failed to create room. Please try again");
     }
   }
 
@@ -267,16 +242,19 @@ export default function Room() {
         </div>
       )}
 
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        closeOnClick={true}
-        pauseOnHover={true}
-        draggable={true}
-        theme="light"
-        transition={Slide}
-      />
+<ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Slide}
+          />
     </div>
   );
 }

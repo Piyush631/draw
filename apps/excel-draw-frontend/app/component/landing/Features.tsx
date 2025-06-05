@@ -14,20 +14,20 @@ const data = [
   },
   {
     icon: <FaWandMagicSparkles />,
-    name: "Advance Brushesugug",
-    desc: " Customizable brushes with pressure sensitivity and texture controls",
+    name: "Smart Drawing Tools",
+    desc: "Powerful yet intuitive tools that adapt to your creative workflow.",
   },
   {
     icon: <CiCloudOn />,
 
-    name: "Advance Brushes3",
-    desc: " Customizable brushes with pressure sensitivity and texture controls",
+    name: "Cloud Storage",
+    desc: "Automatically save and sync your drawings across all devices.",
   },
   {
     icon: <IoShareSocialSharp />,
 
-    name: "Advance Brushes2",
-    desc: " Customizable brushes with pressure sensitivity and texture controls",
+    name: "Real Time Collaboration",
+    desc: "Work together with your team in real-time, seeing changes as they happen",
   },
 ];
 
