@@ -77,7 +77,14 @@ export default function Room() {
         setSlug(""); 
         fetchData(); 
       } else {
-        toast.error("Room already exists!");
+        toast.error("Room already exists!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (err) {
       
