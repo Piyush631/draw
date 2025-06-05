@@ -104,6 +104,9 @@ export class Game {
   private selectedFill: Fill = "black";
   private selectedWidth: Width = 1;
   private selectedStyle: Dots = "solid";
+  private scale: number = 1;
+  private offsetX: number = 0;
+  private offsetY: number = 0;
 
   private tempPath: { x: number; y: number }[] = [];
   constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
@@ -149,6 +152,29 @@ export class Game {
   setStyle(dots: "solid" | "dotted" | "dashed") {
     this.selectedStyle = dots;
   }
+  setTransform(scale: number, offsetX: number, offsetY: number) {
+    this.scale = scale;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    this.clearCanvas();
+  }
+
+  // Helper method to transform coordinates
+  private transformPoint(x: number, y: number): { x: number; y: number } {
+    return {
+      x: (x - this.offsetX) / this.scale,
+      y: (y - this.offsetY) / this.scale
+    };
+  }
+
+  // Helper method to transform coordinates back
+  private inverseTransformPoint(x: number, y: number): { x: number; y: number } {
+    return {
+      x: x * this.scale + this.offsetX,
+      y: y * this.scale + this.offsetY
+    };
+  }
+
   async init() {
     this.existingShapes = await getExistingShape(this.roomId);
     console.log(this.roomId);
@@ -160,13 +186,14 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    this.startX = x;
-    this.startY = y;
+    const transformed = this.transformPoint(x, y);
+    this.startX = transformed.x;
+    this.startY = transformed.y;
 
     if (this.selectedTool === "pencil") {
       this.tempPath = [{ x: this.startX, y: this.startY }];
       this.ctx.beginPath();
-      this.ctx.lineWidth = this.selectedWidth;
+      this.ctx.lineWidth = this.selectedWidth * this.scale;
       this.ctx.strokeStyle = this.selectedStroke;
       this.ctx.fillStyle = this.selectedFill;
       this.ctx.moveTo(this.startX, this.startY);
@@ -187,8 +214,9 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const width = x - this.startX;
-    const height = y - this.startY;
+    const transformed = this.transformPoint(x, y);
+    const width = transformed.x - this.startX;
+    const height = transformed.y - this.startY;
 
     let shape: Shape | null = null;
     const selectedTool = this.selectedTool;
@@ -231,8 +259,8 @@ export class Game {
         type: "line",
         x: this.startX,
         y: this.startY,
-        endX: x,
-        endY: y,
+        endX: transformed.x,
+        endY: transformed.y,
         stroke: selectedStroke,
         arrow: false,
         fill: selectedFill,
@@ -245,8 +273,8 @@ export class Game {
         type: "line",
         x: this.startX,
         y: this.startY,
-        endX: x,
-        endY: y,
+        endX: transformed.x,
+        endY: transformed.y,
         stroke: selectedStroke,
         arrow: true,
         fill: selectedFill,
@@ -300,14 +328,15 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    const transformed = this.transformPoint(x, y);
 
     if (this.clicked) {
-      const width = x - this.startX;
-      const height = y - this.startY;
+      const width = transformed.x - this.startX;
+      const height = transformed.y - this.startY;
       this.clearCanvas();
       this.ctx.strokeStyle = this.selectedStroke;
       this.ctx.fillStyle = this.selectedFill;
-      this.ctx.lineWidth = this.selectedWidth;
+      this.ctx.lineWidth = this.selectedWidth * this.scale;
 
       const selectedTool = this.selectedTool;
       switch (this.selectedStyle) {
@@ -315,7 +344,7 @@ export class Game {
           this.ctx.setLineDash([]);
           break;
         case "dotted":
-          this.ctx.setLineDash([this.selectedWidth, this.selectedWidth * 2]); // Increased dot spacing
+          this.ctx.setLineDash([this.selectedWidth * 2, this.selectedWidth * 4]); // Increased dot spacing
           break;
         case "dashed":
           this.ctx.setLineDash([
@@ -338,17 +367,17 @@ export class Game {
         this.ctx.fill();
         this.ctx.stroke();
       } else if (selectedTool === "line") {
-        this.drawLine(this.startX, this.startY, x, y, false);
+        this.drawLine(this.startX, this.startY, transformed.x, transformed.y, false);
       } else if (selectedTool === "rightArrow") {
-        this.drawLine(this.startX, this.startY, x, y, true);
+        this.drawLine(this.startX, this.startY, transformed.x, transformed.y, true);
       } else if (this.selectedTool === "pencil") {
         const lastPoint = this.tempPath[this.tempPath.length - 1];
         const distance = Math.sqrt(
-          Math.pow(x - lastPoint.x, 2) + Math.pow(y - lastPoint.y, 2)
+          Math.pow(transformed.x - lastPoint.x, 2) + Math.pow(transformed.y - lastPoint.y, 2)
         );
         if (distance > 2) {
           requestAnimationFrame(() => {
-            this.drawPencil(x, y);
+            this.drawPencil(transformed.x, transformed.y);
           });
         }
       } else if (this.selectedTool === "diamond") {
@@ -407,7 +436,7 @@ export class Game {
   }
   drawPencil(x: number, y: number) {
     this.tempPath.push({ x, y });
-    this.ctx.lineWidth = this.selectedWidth;
+    this.ctx.lineWidth = this.selectedWidth * this.scale;
     this.ctx.beginPath();
     this.ctx.moveTo(this.tempPath[0].x, this.tempPath[0].y);
 
@@ -446,6 +475,14 @@ export class Game {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.fillStyle = "rgba(0,0,0)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Save the current transform state
+    this.ctx.save();
+    
+    // Apply the current transform
+    this.ctx.translate(this.offsetX, this.offsetY);
+    this.ctx.scale(this.scale, this.scale);
+
     this.existingShapes.map((shape) => {
       this.ctx.save();
       switch (shape.strokeStyle) {
@@ -453,16 +490,17 @@ export class Game {
           this.ctx.setLineDash([]);
           break;
         case "dotted":
-          this.ctx.setLineDash([shape.strokeWidth, shape.strokeWidth * 2]); // Increased dot spacing
+          this.ctx.setLineDash([shape.strokeWidth, shape.strokeWidth * 2]);
           break;
         case "dashed":
-          this.ctx.setLineDash([shape.strokeWidth * 4, shape.strokeWidth * 2]); // Longer dashes with more space
+          this.ctx.setLineDash([shape.strokeWidth * 4, shape.strokeWidth * 2]);
           break;
         default:
-          this.ctx.setLineDash([]); // Default to solid
+          this.ctx.setLineDash([]);
       }
       this.ctx.fillStyle = shape.fill;
       this.ctx.strokeStyle = shape.stroke;
+      this.ctx.lineWidth = shape.strokeWidth;
 
       if (shape.type === "rect") {
         this.drawRect(shape.x, shape.y, shape.width, shape.height);
@@ -509,6 +547,9 @@ export class Game {
         this.ctx.fillText(shape.text, shape.x, shape.y);
       }
     });
+
+    // Restore the transform state
+    this.ctx.restore();
   }
   eraseShape(x: number, y: number) {
     const shape = this.existingShapes.find((shape) => {

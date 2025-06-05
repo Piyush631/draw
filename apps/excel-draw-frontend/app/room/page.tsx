@@ -56,10 +56,9 @@ export default function Room() {
 
   async function CreateRoom() {
     try {
-      setCreateRoom(false);
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found. Please log in.");
+        router.push("/signin");
         return;
       }
 
@@ -74,12 +73,37 @@ export default function Room() {
       );
 
       if (response.data.msg === "success") {
-        toast.success("Room Created");
+        toast.success("Room Created Successfully!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        setCreateRoom(false);
+        setSlug(""); // Clear the input
+        fetchData(); // Refresh the room list
       } else {
-        toast.error("Room already exists");
+        toast.error("Room already exists!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (err) {
       console.error("Error creating room", err);
+      toast.error("Failed to create room. Please try again.", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   }
 
@@ -242,9 +266,11 @@ export default function Room() {
 
       <ToastContainer
         position="top-center"
-        autoClose={1900}
-        hideProgressBar
-        closeOnClick={false}
+        autoClose={2000}
+        hideProgressBar={false}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={true}
         theme="light"
         transition={Slide}
       />
