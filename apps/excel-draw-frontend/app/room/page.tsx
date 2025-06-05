@@ -75,9 +75,18 @@ export default function Room() {
 
       if (response.data.msg === "success") {
         setCreateRoom(false);
+        toast.success("Room Created Successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setSlug(""); 
         fetchData(); 
       } else {
+        setCreateRoom(false);
         toast.error("Room already exists!", {
           position: "top-right",
           autoClose: 3000,
@@ -89,6 +98,15 @@ export default function Room() {
       }
     } catch (err) {
       
+      toast.error("Failed to create room. Please try again", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
     }
   }
 
