@@ -73,15 +73,14 @@ export default function Room() {
       );
 
       if (response.data.msg === "success") {
-        toast.success("Room Created Successfully");
         setCreateRoom(false);
         setSlug(""); 
         fetchData(); 
       } else {
-        toast.error("Room already exists!");
+        alert("Room already exists!");
       }
     } catch (err) {
-      toast.error("Failed to create room. Please try again");
+      
     }
   }
 
