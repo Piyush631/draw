@@ -20,6 +20,7 @@ interface usersType {
 const users: usersType[] = [];
 const RECENT_CONNECTIONS = new Map<string, number>();
 const CONNECTION_COOLDOWN = 2000; // 2 seconds cooldown between reconnections
+const MAX_CONNECTIONS_PER_USER = 3; // Maximum number of concurrent connections per user
 
 // Ping interval in milliseconds
 const PING_INTERVAL = 30000;
@@ -41,6 +42,29 @@ function checkuser(token: string): string | null {
   }
 }
 
+// Function to get active connections for a user
+function getUserConnections(userId: string): usersType[] {
+  return users.filter(u => u.userId === userId && u.isAlive);
+}
+
+// Function to clean up old connections for a user
+function cleanupOldConnections(userId: string) {
+  const userConnections = getUserConnections(userId);
+  if (userConnections.length > MAX_CONNECTIONS_PER_USER) {
+    // Sort by connection time and keep only the newest connections
+    userConnections
+      .sort((a, b) => b.connectionTime - a.connectionTime)
+      .slice(MAX_CONNECTIONS_PER_USER)
+      .forEach(connection => {
+        connection.ws.close(1000, "Too many concurrent connections");
+        const index = users.findIndex(u => u.ws === connection.ws);
+        if (index !== -1) {
+          users.splice(index, 1);
+        }
+      });
+  }
+}
+
 // Set up ping interval
 const interval = setInterval(() => {
   const now = Date.now();
@@ -48,6 +72,10 @@ const interval = setInterval(() => {
     if (!user.isAlive && (now - user.lastPing) > PONG_TIMEOUT) {
       console.log(`User ${user.userId} connection timed out after ${now - user.lastPing}ms`);
       user.ws.terminate();
+      const index = users.findIndex(u => u.ws === user.ws);
+      if (index !== -1) {
+        users.splice(index, 1);
+      }
       return;
     }
     
@@ -88,23 +116,8 @@ ws.on("connection", function connection(ws: WebSocket, request: any) {
   // Update last connection time
   RECENT_CONNECTIONS.set(userId, now);
 
-  // Remove any existing connection for this user
-  const existingUserIndex = users.findIndex((u) => u.userId === userId);
-  if (existingUserIndex !== -1) {
-    const existingUser = users[existingUserIndex];
-    if (existingUser) {
-      // Only close if the connection is older than the cooldown period
-      if (now - existingUser.connectionTime > CONNECTION_COOLDOWN) {
-        console.log(`Closing existing connection for user ${userId} (age: ${now - existingUser.connectionTime}ms)`);
-        existingUser.ws.close(1000, "New connection established");
-        users.splice(existingUserIndex, 1);
-      } else {
-        console.log(`Ignoring new connection for user ${userId} (existing connection is too recent)`);
-        ws.close(1000, "Connection already exists");
-        return;
-      }
-    }
-  }
+  // Clean up old connections for this user
+  cleanupOldConnections(userId);
 
   const newUser = {
     userId,

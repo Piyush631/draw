@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { Game } from "../draw/Game";
+import { useRouter } from "next/navigation";
 import { SideBar } from "./canvas/sideBar";
 import { TopBar } from "./canvas/topBar";
 
@@ -28,7 +29,6 @@ export type Fill =
   | "#FFEC99";
 export type Width = 1 | 3 | 6;
 export type Dots = "solid" | "dotted" | "dashed";
-
 export default function Canvas({ roomId, socket }: canva) {
   const canvasref = useRef<HTMLCanvasElement>(null);
   const [selectedTool, setSelectedTool] = useState<Tool>("circle");
@@ -36,8 +36,9 @@ export default function Canvas({ roomId, socket }: canva) {
   const [selectedFill, setSelectedFill] = useState<Fill>("black");
   const [selectedWidth, setSelectedWidth] = useState<Width>(1);
   const [selectedStyle, setSelectedStyle] = useState<Dots>("solid");
-  const [game, setGame] = useState<Game>();
 
+  const [game, setGame] = useState<Game>();
+  const router = useRouter();
   useEffect(() => {
     const canvas = canvasref.current;
     if (!canvas) return;
@@ -51,23 +52,19 @@ export default function Canvas({ roomId, socket }: canva) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   useEffect(() => {
+    //@ts-ignore
     game?.setTool(selectedTool);
   }, [selectedTool, game]);
-
   useEffect(() => {
     game?.setStroke(selectedStroke);
   }, [selectedStroke, game]);
-
   useEffect(() => {
     game?.setFill(selectedFill);
   }, [selectedFill, game]);
-
   useEffect(() => {
     game?.setWidth(selectedWidth);
   }, [selectedWidth, game]);
-
   useEffect(() => {
     game?.setStyle(selectedStyle);
   }, [selectedStyle, game]);
@@ -80,7 +77,7 @@ export default function Canvas({ roomId, socket }: canva) {
         g.destroy();
       };
     }
-  }, [canvasref, roomId, socket]);
+  }, [canvasref]);
 
   return (
     <div

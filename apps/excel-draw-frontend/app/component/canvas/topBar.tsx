@@ -21,9 +21,22 @@ interface TopBarProps {
   id: string;
 }
 
+declare global {
+  interface Window {
+    socket?: WebSocket;
+  }
+}
+
 export function TopBar({ selectedTool, setSelectedTool, id }: TopBarProps) {
   const router = useRouter();
   function Logout() {
+    // Close any existing socket connection
+    if (window.socket) {
+      window.socket.close();
+    }
+    // Clear local storage
+    localStorage.removeItem("token");
+    // Redirect to room page
     router.push("/room");
   }
   async function deleteRoom() {
