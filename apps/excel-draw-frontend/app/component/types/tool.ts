@@ -1,0 +1,1 @@
+export type Tool = "circle" | "rect" | "line" | "text" | "diamond" | "rightArrow" | "pencil" | "eraser"; 

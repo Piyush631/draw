@@ -104,11 +104,8 @@ export class Game {
   private selectedFill: Fill = "black";
   private selectedWidth: Width = 1;
   private selectedStyle: Dots = "solid";
-  private scale: number = 1;
-  private offsetX: number = 0;
-  private offsetY: number = 0;
-
   private tempPath: { x: number; y: number }[] = [];
+
   constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
@@ -120,11 +117,13 @@ export class Game {
     this.initHandler();
     this.initMouseHandler();
   }
+
   destroy() {
     this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
     this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
     this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
   }
+
   setTool(
     tool:
       | "circle"
@@ -138,62 +137,37 @@ export class Game {
   ) {
     this.selectedTool = tool;
   }
+
   setStroke(stroke: "black" | "red" | "yellow" | "green" | "blue" | "white") {
     this.selectedStroke = stroke;
   }
+
   setFill(
     fill: "black" | "#FFC9C9" | "#FFEC99" | "#B2F2BB" | "#FFEC99" | "white"
   ) {
     this.selectedFill = fill;
   }
+
   setWidth(width: 1 | 3 | 6) {
     this.selectedWidth = width;
   }
+
   setStyle(dots: "solid" | "dotted" | "dashed") {
     this.selectedStyle = dots;
   }
-  setTransform(scale: number, offsetX: number, offsetY: number) {
-    this.scale = scale;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
-    this.clearCanvas();
-  }
 
-  // Helper method to transform coordinates
-  private transformPoint(x: number, y: number): { x: number; y: number } {
-    return {
-      x: (x - this.offsetX) / this.scale,
-      y: (y - this.offsetY) / this.scale
-    };
-  }
-
-  // Helper method to transform coordinates back
-  private inverseTransformPoint(x: number, y: number): { x: number; y: number } {
-    return {
-      x: x * this.scale + this.offsetX,
-      y: y * this.scale + this.offsetY
-    };
-  }
-
-  async init() {
-    this.existingShapes = await getExistingShape(this.roomId);
-    console.log(this.roomId);
-    console.log(this.selectedStroke);
-    this.clearCanvas();
-  }
   mouseDownHandler = (e: MouseEvent) => {
     this.clicked = true;
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const transformed = this.transformPoint(x, y);
-    this.startX = transformed.x;
-    this.startY = transformed.y;
+    this.startX = x;
+    this.startY = y;
 
     if (this.selectedTool === "pencil") {
       this.tempPath = [{ x: this.startX, y: this.startY }];
       this.ctx.beginPath();
-      this.ctx.lineWidth = this.selectedWidth * this.scale;
+      this.ctx.lineWidth = this.selectedWidth;
       this.ctx.strokeStyle = this.selectedStroke;
       this.ctx.fillStyle = this.selectedFill;
       this.ctx.moveTo(this.startX, this.startY);
@@ -207,6 +181,7 @@ export class Game {
       return;
     }
   };
+
   mouseUpHandler = (e: MouseEvent) => {
     if (!this.clicked) return;
     this.clicked = false;
@@ -214,9 +189,8 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const transformed = this.transformPoint(x, y);
-    const width = transformed.x - this.startX;
-    const height = transformed.y - this.startY;
+    const width = x - this.startX;
+    const height = y - this.startY;
 
     let shape: Shape | null = null;
     const selectedTool = this.selectedTool;
@@ -224,6 +198,7 @@ export class Game {
     const selectedFill = this.selectedFill;
     const selectedWidth = this.selectedWidth;
     const selectedStyle = this.selectedStyle;
+
     if (selectedTool === "rect") {
       shape = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
@@ -259,8 +234,8 @@ export class Game {
         type: "line",
         x: this.startX,
         y: this.startY,
-        endX: transformed.x,
-        endY: transformed.y,
+        endX: x,
+        endY: y,
         stroke: selectedStroke,
         arrow: false,
         fill: selectedFill,
@@ -273,8 +248,8 @@ export class Game {
         type: "line",
         x: this.startX,
         y: this.startY,
-        endX: transformed.x,
-        endY: transformed.y,
+        endX: x,
+        endY: y,
         stroke: selectedStroke,
         arrow: true,
         fill: selectedFill,
@@ -328,15 +303,14 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const transformed = this.transformPoint(x, y);
 
     if (this.clicked) {
-      const width = transformed.x - this.startX;
-      const height = transformed.y - this.startY;
+      const width = x - this.startX;
+      const height = y - this.startY;
       this.clearCanvas();
       this.ctx.strokeStyle = this.selectedStroke;
       this.ctx.fillStyle = this.selectedFill;
-      this.ctx.lineWidth = this.selectedWidth * this.scale;
+      this.ctx.lineWidth = this.selectedWidth;
 
       const selectedTool = this.selectedTool;
       switch (this.selectedStyle) {
@@ -344,17 +318,18 @@ export class Game {
           this.ctx.setLineDash([]);
           break;
         case "dotted":
-          this.ctx.setLineDash([this.selectedWidth * 2, this.selectedWidth * 4]); // Increased dot spacing
+          this.ctx.setLineDash([this.selectedWidth * 2, this.selectedWidth * 4]);
           break;
         case "dashed":
           this.ctx.setLineDash([
             this.selectedWidth * 4,
             this.selectedWidth * 2,
-          ]); // Increased dot spacing
+          ]);
           break;
         default:
-          this.ctx.setLineDash([]); // Default to solid
+          this.ctx.setLineDash([]);
       }
+
       if (selectedTool === "rect") {
         this.drawRect(this.startX, this.startY, width, height);
       } else if (selectedTool === "circle") {
@@ -367,17 +342,17 @@ export class Game {
         this.ctx.fill();
         this.ctx.stroke();
       } else if (selectedTool === "line") {
-        this.drawLine(this.startX, this.startY, transformed.x, transformed.y, false);
+        this.drawLine(this.startX, this.startY, x, y, false);
       } else if (selectedTool === "rightArrow") {
-        this.drawLine(this.startX, this.startY, transformed.x, transformed.y, true);
+        this.drawLine(this.startX, this.startY, x, y, true);
       } else if (this.selectedTool === "pencil") {
         const lastPoint = this.tempPath[this.tempPath.length - 1];
         const distance = Math.sqrt(
-          Math.pow(transformed.x - lastPoint.x, 2) + Math.pow(transformed.y - lastPoint.y, 2)
+          Math.pow(x - lastPoint.x, 2) + Math.pow(y - lastPoint.y, 2)
         );
         if (distance > 2) {
           requestAnimationFrame(() => {
-            this.drawPencil(transformed.x, transformed.y);
+            this.drawPencil(x, y);
           });
         }
       } else if (this.selectedTool === "diamond") {
@@ -396,12 +371,14 @@ export class Game {
       }
     }
   };
+
   drawRect(startX: number, startY: number, width: number, height: number) {
     this.ctx.beginPath();
     this.ctx.rect(startX, startY, width, height);
     this.ctx.fill();
     this.ctx.stroke();
   }
+
   drawLine(
     startX: number,
     startY: number,
@@ -434,9 +411,10 @@ export class Game {
 
     this.ctx.stroke();
   }
+
   drawPencil(x: number, y: number) {
     this.tempPath.push({ x, y });
-    this.ctx.lineWidth = this.selectedWidth * this.scale;
+    this.ctx.lineWidth = this.selectedWidth;
     this.ctx.beginPath();
     this.ctx.moveTo(this.tempPath[0].x, this.tempPath[0].y);
 
@@ -453,35 +431,11 @@ export class Game {
 
     this.ctx.stroke();
   }
-  initHandler() {
-    this.socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      if (message.type === "chat") {
-        const parsedMessage = JSON.parse(message.message);
-        console.log(parsedMessage);
-        this.existingShapes.push(parsedMessage.shape);
-        this.clearCanvas();
-      } else if (message.type === "eraser") {
-        this.existingShapes = this.existingShapes.filter(
-          (shape) => shape.id !== message.id
-        );
-        this.clearCanvas();
-      }
-    };
-  }
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.fillStyle = "rgba(0,0,0)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    // Save the current transform state
-    this.ctx.save();
-    
-    // Apply the current transform
-    this.ctx.translate(this.offsetX, this.offsetY);
-    this.ctx.scale(this.scale, this.scale);
 
     this.existingShapes.map((shape) => {
       this.ctx.save();
@@ -547,57 +501,6 @@ export class Game {
         this.ctx.fillText(shape.text, shape.x, shape.y);
       }
     });
-
-    // Restore the transform state
-    this.ctx.restore();
-  }
-  eraseShape(x: number, y: number) {
-    const shape = this.existingShapes.find((shape) => {
-      if (shape.type === "rect") {
-        return (
-          x >= shape.x &&
-          x <= shape.x + shape.width &&
-          y >= shape.y &&
-          y <= shape.y + shape.height
-        );
-      } else if (shape.type === "circle") {
-        const dx = x - shape.centerX;
-        const dy = y - shape.centerY;
-        return dx * dx + dy * dy <= shape.radius * shape.radius;
-      } else if (shape.type === "line") {
-        return this.isPointOnLine(shape, x, y);
-      } else if (shape.type === "pencil") {
-        return shape.path?.some(
-          (point) => Math.abs(point.x - x) < 5 && Math.abs(point.y - y) < 5
-        );
-      } else if (shape.type === "diamond") {
-        return this.isPointInDiamond(shape, x, y);
-      } else if (shape.type === "text") {
-        const metrics = this.ctx.measureText(shape.text);
-        return (
-          x >= shape.x &&
-          x <= shape.x + metrics.width &&
-          y >= shape.y - 24 &&
-          y <= shape.y
-        );
-      }
-      return false;
-    });
-
-    if (shape) {
-      this.existingShapes = this.existingShapes.filter(
-        (s) => s.id !== shape.id
-      );
-      this.clearCanvas();
-
-      this.socket.send(
-        JSON.stringify({
-          type: "eraser",
-          id: shape.id,
-          roomId: this.roomId,
-        })
-      );
-    }
   }
 
   isPointOnLine(shape: Shape & { type: "line" }, x: number, y: number) {
@@ -608,10 +511,12 @@ export class Game {
 
     return Math.abs(distToStart + distToEnd - lineLength) < 3;
   }
+
   isPointInDiamond(shape: Shape & { type: "diamond" }, x: number, y: number) {
     const { x: cx, y: cy, size } = shape;
     return Math.abs(x - cx) / size + Math.abs(y - cy) / size <= 1;
   }
+
   drawText(text: string, x: number, y: number) {
     this.ctx.font = "24px Comic Sans MS, cursive";
     this.ctx.textBaseline = "top";
@@ -628,6 +533,7 @@ export class Game {
       height: lineHeight,
     };
   }
+
   addInput(x: number, y: number) {
     const input = document.createElement("input");
     input.type = "text";
@@ -679,28 +585,99 @@ export class Game {
       }
       document.body.removeChild(input);
     };
+
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         handleSubmit();
       }
     });
+
     const handleClickOutside = (e: MouseEvent) => {
       if (!input.contains(e.target as Node)) {
         handleSubmit();
       }
     };
 
-    setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside);
-    }, 10);
-
-    input.addEventListener("blur", () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    });
+    document.addEventListener("click", handleClickOutside);
   }
+
   initMouseHandler() {
     this.canvas.addEventListener("mousedown", this.mouseDownHandler);
     this.canvas.addEventListener("mouseup", this.mouseUpHandler);
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+  }
+
+  async init() {
+    this.existingShapes = await getExistingShape(this.roomId);
+    console.log(this.roomId);
+    console.log(this.selectedStroke);
+    this.clearCanvas();
+  }
+
+  initHandler() {
+    this.socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log(message);
+      if (message.type === "chat") {
+        const parsedMessage = JSON.parse(message.message);
+        console.log(parsedMessage);
+        this.existingShapes.push(parsedMessage.shape);
+        this.clearCanvas();
+      } else if (message.type === "eraser") {
+        this.existingShapes = this.existingShapes.filter(
+          (shape) => shape.id !== message.id
+        );
+        this.clearCanvas();
+      }
+    };
+  }
+
+  eraseShape(x: number, y: number) {
+    const shape = this.existingShapes.find((shape) => {
+      if (shape.type === "rect") {
+        return (
+          x >= shape.x &&
+          x <= shape.x + shape.width &&
+          y >= shape.y &&
+          y <= shape.y + shape.height
+        );
+      } else if (shape.type === "circle") {
+        const dx = x - shape.centerX;
+        const dy = y - shape.centerY;
+        return dx * dx + dy * dy <= shape.radius * shape.radius;
+      } else if (shape.type === "line") {
+        return this.isPointOnLine(shape, x, y);
+      } else if (shape.type === "pencil") {
+        return shape.path?.some(
+          (point) => Math.abs(point.x - x) < 5 && Math.abs(point.y - y) < 5
+        );
+      } else if (shape.type === "diamond") {
+        return this.isPointInDiamond(shape, x, y);
+      } else if (shape.type === "text") {
+        const metrics = this.ctx.measureText(shape.text);
+        return (
+          x >= shape.x &&
+          x <= shape.x + metrics.width &&
+          y >= shape.y - 24 &&
+          y <= shape.y
+        );
+      }
+      return false;
+    });
+
+    if (shape) {
+      this.existingShapes = this.existingShapes.filter(
+        (s) => s.id !== shape.id
+      );
+      this.clearCanvas();
+
+      this.socket.send(
+        JSON.stringify({
+          type: "eraser",
+          id: shape.id,
+          roomId: this.roomId,
+        })
+      );
+    }
   }
 }
