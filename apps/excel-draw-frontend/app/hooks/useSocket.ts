@@ -9,7 +9,7 @@ export default function useSocket() {
     const lastConnectionAttempt = useRef<number>(0);
     const connectionTimeout = useRef<NodeJS.Timeout>();
     const MAX_RETRIES = 5;
-    const MIN_RECONNECT_DELAY = 2000; // 2 seconds minimum delay between reconnection attempts
+    const MIN_RECONNECT_DELAY = 2000; 
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -41,7 +41,7 @@ export default function useSocket() {
                     setLoading(false);
                     setError(null);
                     setSocket(ws);
-                    setRetryCount(0); // Reset retry count on successful connection
+                    setRetryCount(0); 
                 };
 
                 ws.onclose = (event) => {
