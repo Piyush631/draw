@@ -10,7 +10,6 @@ export default function useSocket() {
     const connectionTimeout = useRef<NodeJS.Timeout>();
     const MAX_RETRIES = 5;
     const MIN_RECONNECT_DELAY = 2000; // 2 seconds minimum delay between reconnection attempts
-    const MAX_RECONNECT_DELAY = 30000; // 30 seconds maximum delay
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -35,13 +34,7 @@ export default function useSocket() {
             lastConnectionAttempt.current = now;
 
             try {
-                // Close existing socket if it exists
-                if (socket) {
-                    socket.close();
-                }
-
                 const ws = new WebSocket(`${WS_URL}?token=${token}`);
-                window.socket = ws; // Store socket in window for global access
 
                 ws.onopen = () => {
                     console.log("WebSocket connected");
@@ -58,10 +51,7 @@ export default function useSocket() {
 
                     // Only attempt to reconnect if we haven't exceeded max retries
                     if (retryCount < MAX_RETRIES) {
-                        const backoffDelay = Math.min(
-                            MIN_RECONNECT_DELAY * Math.pow(2, retryCount),
-                            MAX_RECONNECT_DELAY
-                        );
+                        const backoffDelay = Math.min(3000 * Math.pow(2, retryCount), 30000); // Max 30 second delay
                         console.log(`Attempting to reconnect (${retryCount + 1}/${MAX_RETRIES}) in ${backoffDelay}ms...`);
                         setRetryCount(prev => prev + 1);
                         connectionTimeout.current = setTimeout(connectWebSocket, backoffDelay);
@@ -93,10 +83,6 @@ export default function useSocket() {
             }
             if (ws) {
                 ws.close();
-            }
-            if (window.socket) {
-                window.socket.close();
-                window.socket = undefined;
             }
         };
     }, [retryCount]);
