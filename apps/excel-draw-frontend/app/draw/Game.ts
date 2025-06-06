@@ -104,8 +104,8 @@ export class Game {
   private selectedFill: Fill = "black";
   private selectedWidth: Width = 1;
   private selectedStyle: Dots = "solid";
-  private tempPath: { x: number; y: number }[] = [];
 
+  private tempPath: { x: number; y: number }[] = [];
   constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
@@ -117,13 +117,11 @@ export class Game {
     this.initHandler();
     this.initMouseHandler();
   }
-
   destroy() {
     this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
     this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
     this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
   }
-
   setTool(
     tool:
       | "circle"
@@ -137,25 +135,26 @@ export class Game {
   ) {
     this.selectedTool = tool;
   }
-
   setStroke(stroke: "black" | "red" | "yellow" | "green" | "blue" | "white") {
     this.selectedStroke = stroke;
   }
-
   setFill(
     fill: "black" | "#FFC9C9" | "#FFEC99" | "#B2F2BB" | "#FFEC99" | "white"
   ) {
     this.selectedFill = fill;
   }
-
   setWidth(width: 1 | 3 | 6) {
     this.selectedWidth = width;
   }
-
   setStyle(dots: "solid" | "dotted" | "dashed") {
     this.selectedStyle = dots;
   }
-
+  async init() {
+    this.existingShapes = await getExistingShape(this.roomId);
+    console.log(this.roomId);
+    console.log(this.selectedStroke);
+    this.clearCanvas();
+  }
   mouseDownHandler = (e: MouseEvent) => {
     this.clicked = true;
     const rect = this.canvas.getBoundingClientRect();
@@ -181,7 +180,6 @@ export class Game {
       return;
     }
   };
-
   mouseUpHandler = (e: MouseEvent) => {
     if (!this.clicked) return;
     this.clicked = false;
@@ -198,7 +196,6 @@ export class Game {
     const selectedFill = this.selectedFill;
     const selectedWidth = this.selectedWidth;
     const selectedStyle = this.selectedStyle;
-
     if (selectedTool === "rect") {
       shape = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
@@ -318,18 +315,17 @@ export class Game {
           this.ctx.setLineDash([]);
           break;
         case "dotted":
-          this.ctx.setLineDash([this.selectedWidth * 2, this.selectedWidth * 4]);
+          this.ctx.setLineDash([this.selectedWidth, this.selectedWidth * 2]); // Increased dot spacing
           break;
         case "dashed":
           this.ctx.setLineDash([
             this.selectedWidth * 4,
             this.selectedWidth * 2,
-          ]);
+          ]); // Increased dot spacing
           break;
         default:
-          this.ctx.setLineDash([]);
+          this.ctx.setLineDash([]); // Default to solid
       }
-
       if (selectedTool === "rect") {
         this.drawRect(this.startX, this.startY, width, height);
       } else if (selectedTool === "circle") {
@@ -371,14 +367,12 @@ export class Game {
       }
     }
   };
-
   drawRect(startX: number, startY: number, width: number, height: number) {
     this.ctx.beginPath();
     this.ctx.rect(startX, startY, width, height);
     this.ctx.fill();
     this.ctx.stroke();
   }
-
   drawLine(
     startX: number,
     startY: number,
@@ -411,7 +405,6 @@ export class Game {
 
     this.ctx.stroke();
   }
-
   drawPencil(x: number, y: number) {
     this.tempPath.push({ x, y });
     this.ctx.lineWidth = this.selectedWidth;
@@ -431,12 +424,28 @@ export class Game {
 
     this.ctx.stroke();
   }
+  initHandler() {
+    this.socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log(message);
+      if (message.type === "chat") {
+        const parsedMessage = JSON.parse(message.message);
+        console.log(parsedMessage);
+        this.existingShapes.push(parsedMessage.shape);
+        this.clearCanvas();
+      } else if (message.type === "eraser") {
+        this.existingShapes = this.existingShapes.filter(
+          (shape) => shape.id !== message.id
+        );
+        this.clearCanvas();
+      }
+    };
+  }
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.fillStyle = "rgba(0,0,0)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
     this.existingShapes.map((shape) => {
       this.ctx.save();
       switch (shape.strokeStyle) {
@@ -444,17 +453,16 @@ export class Game {
           this.ctx.setLineDash([]);
           break;
         case "dotted":
-          this.ctx.setLineDash([shape.strokeWidth, shape.strokeWidth * 2]);
+          this.ctx.setLineDash([shape.strokeWidth, shape.strokeWidth * 2]); // Increased dot spacing
           break;
         case "dashed":
-          this.ctx.setLineDash([shape.strokeWidth * 4, shape.strokeWidth * 2]);
+          this.ctx.setLineDash([shape.strokeWidth * 4, shape.strokeWidth * 2]); // Longer dashes with more space
           break;
         default:
-          this.ctx.setLineDash([]);
+          this.ctx.setLineDash([]); // Default to solid
       }
       this.ctx.fillStyle = shape.fill;
       this.ctx.strokeStyle = shape.stroke;
-      this.ctx.lineWidth = shape.strokeWidth;
 
       if (shape.type === "rect") {
         this.drawRect(shape.x, shape.y, shape.width, shape.height);
@@ -502,136 +510,6 @@ export class Game {
       }
     });
   }
-
-  isPointOnLine(shape: Shape & { type: "line" }, x: number, y: number) {
-    const { x: x1, y: y1, endX: x2, endY: y2 } = shape;
-    const distToStart = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
-    const distToEnd = Math.sqrt((x - x2) ** 2 + (y - y2) ** 2);
-    const lineLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-
-    return Math.abs(distToStart + distToEnd - lineLength) < 3;
-  }
-
-  isPointInDiamond(shape: Shape & { type: "diamond" }, x: number, y: number) {
-    const { x: cx, y: cy, size } = shape;
-    return Math.abs(x - cx) / size + Math.abs(y - cy) / size <= 1;
-  }
-
-  drawText(text: string, x: number, y: number) {
-    this.ctx.font = "24px Comic Sans MS, cursive";
-    this.ctx.textBaseline = "top";
-    this.ctx.textAlign = "left";
-
-    const metrics = this.ctx.measureText(text);
-    const lineHeight = 24;
-
-    this.ctx.fillStyle = this.selectedStroke;
-    this.ctx.fillText(text, x, y);
-
-    return {
-      width: metrics.width,
-      height: lineHeight,
-    };
-  }
-
-  addInput(x: number, y: number) {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.style.position = "absolute";
-    input.style.left = `${x}px`;
-    input.style.top = `${y}px`;
-    input.style.background = "transparent";
-    input.style.color = this.selectedStroke;
-    input.style.outline = "none";
-    input.style.border = "none";
-    input.style.fontSize = "24px";
-    input.style.fontFamily = "Comic Sans MS, cursive";
-    input.style.maxWidth = "180px";
-    document.body.appendChild(input);
-    setTimeout(() => input.focus(), 0);
-
-    const handleSubmit = () => {
-      if (input.value.trim() !== "") {
-        const dimensions = this.drawText(input.value, x, y);
-
-        let shape: Shape | null = null;
-        const selectedStroke = this.selectedStroke;
-
-        if (this.selectedTool === "text") {
-          shape = {
-            id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
-            type: "text",
-            x: x,
-            y: y,
-            endX: x + dimensions.width,
-            endY: y + dimensions.height,
-            text: input.value.trim(),
-            stroke: selectedStroke,
-            fill: selectedStroke,
-            strokeWidth: this.selectedWidth,
-          };
-          this.existingShapes.push(shape);
-          this.socket.send(
-            JSON.stringify({
-              type: "chat",
-              message: JSON.stringify({
-                shape,
-              }),
-              roomId: this.roomId,
-              id: shape.id,
-            })
-          );
-        }
-      }
-      document.body.removeChild(input);
-    };
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        handleSubmit();
-      }
-    });
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!input.contains(e.target as Node)) {
-        handleSubmit();
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-  }
-
-  initMouseHandler() {
-    this.canvas.addEventListener("mousedown", this.mouseDownHandler);
-    this.canvas.addEventListener("mouseup", this.mouseUpHandler);
-    this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
-  }
-
-  async init() {
-    this.existingShapes = await getExistingShape(this.roomId);
-    console.log(this.roomId);
-    console.log(this.selectedStroke);
-    this.clearCanvas();
-  }
-
-  initHandler() {
-    this.socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      if (message.type === "chat") {
-        const parsedMessage = JSON.parse(message.message);
-        console.log(parsedMessage);
-        this.existingShapes.push(parsedMessage.shape);
-        this.clearCanvas();
-      } else if (message.type === "eraser") {
-        this.existingShapes = this.existingShapes.filter(
-          (shape) => shape.id !== message.id
-        );
-        this.clearCanvas();
-      }
-    };
-  }
-
   eraseShape(x: number, y: number) {
     const shape = this.existingShapes.find((shape) => {
       if (shape.type === "rect") {
@@ -679,5 +557,110 @@ export class Game {
         })
       );
     }
+  }
+
+  isPointOnLine(shape: Shape & { type: "line" }, x: number, y: number) {
+    const { x: x1, y: y1, endX: x2, endY: y2 } = shape;
+    const distToStart = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
+    const distToEnd = Math.sqrt((x - x2) ** 2 + (y - y2) ** 2);
+    const lineLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+
+    return Math.abs(distToStart + distToEnd - lineLength) < 3;
+  }
+  isPointInDiamond(shape: Shape & { type: "diamond" }, x: number, y: number) {
+    const { x: cx, y: cy, size } = shape;
+    return Math.abs(x - cx) / size + Math.abs(y - cy) / size <= 1;
+  }
+  drawText(text: string, x: number, y: number) {
+    this.ctx.font = "24px Comic Sans MS, cursive";
+    this.ctx.textBaseline = "top";
+    this.ctx.textAlign = "left";
+
+    const metrics = this.ctx.measureText(text);
+    const lineHeight = 24;
+
+    this.ctx.fillStyle = this.selectedStroke;
+    this.ctx.fillText(text, x, y);
+
+    return {
+      width: metrics.width,
+      height: lineHeight,
+    };
+  }
+  addInput(x: number, y: number) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.style.position = "absolute";
+    input.style.left = `${x}px`;
+    input.style.top = `${y}px`;
+    input.style.background = "transparent";
+    input.style.color = this.selectedStroke;
+    input.style.outline = "none";
+    input.style.border = "none";
+    input.style.fontSize = "24px";
+    input.style.fontFamily = "Comic Sans MS, cursive";
+    input.style.maxWidth = "180px";
+    document.body.appendChild(input);
+    setTimeout(() => input.focus(), 0);
+
+    const handleSubmit = () => {
+      if (input.value.trim() !== "") {
+        const dimensions = this.drawText(input.value, x, y);
+
+        let shape: Shape | null = null;
+        const selectedStroke = this.selectedStroke;
+        const selectedFill = this.selectedFill;
+
+        if (this.selectedTool === "text") {
+          shape = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+            type: "text",
+            x: x,
+            y: y,
+            endX: x + dimensions.width,
+            endY: y + dimensions.height,
+            text: input.value.trim(),
+            stroke: selectedStroke,
+            fill: selectedStroke,
+            strokeWidth: this.selectedWidth,
+          };
+          this.existingShapes.push(shape);
+          this.socket.send(
+            JSON.stringify({
+              type: "chat",
+              message: JSON.stringify({
+                shape,
+              }),
+              roomId: this.roomId,
+              id: shape.id,
+            })
+          );
+        }
+      }
+      document.body.removeChild(input);
+    };
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleSubmit();
+      }
+    });
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!input.contains(e.target as Node)) {
+        handleSubmit();
+      }
+    };
+
+    setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 10);
+
+    input.addEventListener("blur", () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    });
+  }
+  initMouseHandler() {
+    this.canvas.addEventListener("mousedown", this.mouseDownHandler);
+    this.canvas.addEventListener("mouseup", this.mouseUpHandler);
+    this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
   }
 }
