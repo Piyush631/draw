@@ -174,8 +174,16 @@ export default function Room() {
               <div>Action</div>
             </div>
             {loading ? (
-              <div className="flex justify-center">
-                <img src="/1495.gif" alt="Loading" width={96} height={96} />
+              <div className="flex flex-col gap-3">
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="flex justify-between items-center border-t-1 py-3 border-gray-300">
+                    <div className="flex gap-1 items-center">
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                ))}
               </div>
             ) : (
               allData.map((m) => (
@@ -219,7 +227,7 @@ export default function Room() {
             </div>
             <div className="flex flex-col gap-2">
               <div className="text-xl font-semibold">Create Room</div>
-              <div className="text-gray-500">Enter Room Name</div>
+              <div className="text-black">Enter Room Name</div>
               <input
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
@@ -237,7 +245,7 @@ export default function Room() {
         </div>
       )}
 
-      {/* Join Room Modal */}
+      {/* Join Room Modal */} 
       {joinRoom && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setJoinRoom(false)}></div>
@@ -249,7 +257,7 @@ export default function Room() {
             </div>
             <div className="flex flex-col gap-2">
               <div className="text-xl font-semibold">Join Room</div>
-              <div className="text-gray-500">Enter Room Name</div>
+              <div className="text-black">Enter Room Name</div>
               <input
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}

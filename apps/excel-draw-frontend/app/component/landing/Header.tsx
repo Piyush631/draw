@@ -91,14 +91,13 @@ export function Header() {
           </div>
           {!isToken ? (
             <div className="flex gap-4 pt-2  ">
+               
               <div className="hidden md:flex gap-2">
+              <Link href="/#video">
                 <div
-                  className="hover:bg-[#d4d0ce]  flex items-center text-sm h-8  px-2 rounded-2xl cursor-pointer"
-                  onClick={() => {
-                    router.push("/signin");
-                  }}
-                >
+                  className="hover:bg-[#d4d0ce]  flex items-center text-sm h-8  px-2 rounded-2xl cursor-pointer">
                   <div>Demo</div>
+                  </Link>
                 </div>
                 <div
                   className="hover:bg-[#d4d0ce]  flex items-center text-sm h-8  px-2 rounded-2xl cursor-pointer"

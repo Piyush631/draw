@@ -60,7 +60,7 @@ export function ArtWork() {
             onClick={() => {
               router.push("/signin");
             }}
-            className="bg-gradient-to-r cursor-pointer text-white bg-black hover:bg-white hover:text-black text-lg px-8 py-3 rounded-xl"
+            className="cursor-pointer text-white bg-black hover:bg-white hover:text-black text-lg px-8 py-3 rounded-xl"
           >
             Start Now
           </button>
