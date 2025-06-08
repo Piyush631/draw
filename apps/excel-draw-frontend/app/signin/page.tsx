@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "../component/landing/Header";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Slide, toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const formSchema = z.object({
   email: z
     .string()
