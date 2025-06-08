@@ -7,7 +7,7 @@ export function Video() {
         loop
         muted
         playsInline
-        src="./sample.mp4"
+        src="./sample2.mp4"
       ></video>
     </div>
   );
