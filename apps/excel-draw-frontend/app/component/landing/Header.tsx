@@ -154,14 +154,33 @@ export function Header() {
         {visible && (
           <div className="h-full pb-4 pt-5 w-full flex flex-col items-center justify-center">
             <div className="flex flex-col gap-2">
-              <div>Features</div>
-              <div>Template</div>
-              <div>Pricing</div>
-              <div>GitHub</div>
+              <Link href="/#features">
+                <div className="hover:bg-[#d4d0ce] px-4 py-1 rounded-2xl">Features</div>
+              </Link>
+              <Link href="/#artwork">
+                <div className="hover:bg-[#d4d0ce] px-4 py-1 rounded-2xl">ArtWork</div>
+              </Link>
+              <a href="https://github.com/Piyush631" target="_blank">
+                <div className="hover:bg-[#d4d0ce] px-4 py-1 rounded-2xl">GitHub</div>
+              </a>
             </div>
             <div className="pt-3 flex gap-4">
-              <div>Sign In</div>
-              <div>Sign Up</div>
+              <div 
+                className="hover:bg-[#d4d0ce] px-4 py-1 rounded-2xl cursor-pointer"
+                onClick={() => {
+                  router.push("/signin");
+                }}
+              >
+                Sign In
+              </div>
+              <div 
+                className="hover:bg-[#d4d0ce] px-4 py-1 rounded-2xl cursor-pointer"
+                onClick={() => {
+                  router.push("/signup");
+                }}
+              >
+                Sign Up
+              </div>
             </div>
           </div>
         )}

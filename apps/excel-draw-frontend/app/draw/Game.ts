@@ -121,6 +121,11 @@ export class Game {
     this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
     this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
     this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
+    
+    // Remove touch event handlers
+    this.canvas.removeEventListener("touchstart", this.touchStartHandler);
+    this.canvas.removeEventListener("touchend", this.touchEndHandler);
+    this.canvas.removeEventListener("touchmove", this.touchMoveHandler);
   }
   setTool(
     tool:
@@ -662,5 +667,229 @@ export class Game {
     this.canvas.addEventListener("mousedown", this.mouseDownHandler);
     this.canvas.addEventListener("mouseup", this.mouseUpHandler);
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+
+    // Add touch event handlers
+    this.canvas.addEventListener("touchstart", this.touchStartHandler);
+    this.canvas.addEventListener("touchend", this.touchEndHandler);
+    this.canvas.addEventListener("touchmove", this.touchMoveHandler);
   }
+
+  // Add touch event handlers
+  touchStartHandler = (e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = this.canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    this.clicked = true;
+    this.startX = x;
+    this.startY = y;
+
+    if (this.selectedTool === "pencil") {
+      this.tempPath = [{ x: this.startX, y: this.startY }];
+      this.ctx.beginPath();
+      this.ctx.lineWidth = this.selectedWidth;
+      this.ctx.strokeStyle = this.selectedStroke;
+      this.ctx.fillStyle = this.selectedFill;
+      this.ctx.moveTo(this.startX, this.startY);
+      this.ctx.lineCap = "round";
+      this.ctx.lineJoin = "round";
+    } else if (this.selectedTool === "text") {
+      this.clicked = false;
+      this.addInput(x, y);
+    } else if (this.selectedTool === "eraser") {
+      this.eraseShape(x, y);
+    }
+  };
+
+  touchEndHandler = (e: TouchEvent) => {
+    e.preventDefault();
+    if (!this.clicked) return;
+    this.clicked = false;
+
+    const touch = e.changedTouches[0];
+    const rect = this.canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    const width = x - this.startX;
+    const height = y - this.startY;
+
+    let shape: Shape | null = null;
+    const selectedTool = this.selectedTool;
+    const selectedStroke = this.selectedStroke;
+    const selectedFill = this.selectedFill;
+    const selectedWidth = this.selectedWidth;
+    const selectedStyle = this.selectedStyle;
+
+    if (selectedTool === "rect") {
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "rect",
+        x: this.startX,
+        y: this.startY,
+        width: width,
+        height: height,
+        stroke: selectedStroke,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+    } else if (selectedTool === "circle") {
+      const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+      const centerX = this.startX + width / 2;
+      const centerY = this.startY + height / 2;
+
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "circle",
+        radius: radius,
+        centerX: centerX,
+        centerY: centerY,
+        stroke: selectedStroke,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+    } else if (selectedTool === "line") {
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "line",
+        x: this.startX,
+        y: this.startY,
+        endX: x,
+        endY: y,
+        stroke: selectedStroke,
+        arrow: false,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+    } else if (selectedTool === "rightArrow") {
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "line",
+        x: this.startX,
+        y: this.startY,
+        endX: x,
+        endY: y,
+        stroke: selectedStroke,
+        arrow: true,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+    } else if (selectedTool === "pencil") {
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "pencil",
+        x: 0,
+        y: 0,
+        endX: 0,
+        endY: 0,
+        path: [...this.tempPath],
+        stroke: selectedStroke,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+      this.tempPath = [];
+    } else if (selectedTool === "diamond") {
+      const size = Math.max(Math.abs(width), Math.abs(height));
+      shape = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        type: "diamond",
+        x: this.startX,
+        y: this.startY,
+        size: size,
+        stroke: selectedStroke,
+        fill: selectedFill,
+        strokeWidth: selectedWidth,
+        strokeStyle: selectedStyle,
+      };
+    }
+
+    if (shape) {
+      this.existingShapes.push(shape);
+      this.socket.send(
+        JSON.stringify({
+          type: "chat",
+          message: JSON.stringify({ shape }),
+          id: shape.id,
+          roomId: this.roomId,
+        })
+      );
+    }
+  };
+
+  touchMoveHandler = (e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = this.canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    if (this.clicked) {
+      const width = x - this.startX;
+      const height = y - this.startY;
+      this.clearCanvas();
+      this.ctx.strokeStyle = this.selectedStroke;
+      this.ctx.fillStyle = this.selectedFill;
+      this.ctx.lineWidth = this.selectedWidth;
+
+      const selectedTool = this.selectedTool;
+      switch (this.selectedStyle) {
+        case "solid":
+          this.ctx.setLineDash([]);
+          break;
+        case "dotted":
+          this.ctx.setLineDash([this.selectedWidth, this.selectedWidth * 2]);
+          break;
+        case "dashed":
+          this.ctx.setLineDash([this.selectedWidth * 4, this.selectedWidth * 2]);
+          break;
+        default:
+          this.ctx.setLineDash([]);
+      }
+
+      if (selectedTool === "rect") {
+        this.drawRect(this.startX, this.startY, width, height);
+      } else if (selectedTool === "circle") {
+        const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+        const centerX = this.startX + width / 2;
+        const centerY = this.startY + height / 2;
+
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+      } else if (selectedTool === "line") {
+        this.drawLine(this.startX, this.startY, x, y, false);
+      } else if (selectedTool === "rightArrow") {
+        this.drawLine(this.startX, this.startY, x, y, true);
+      } else if (this.selectedTool === "pencil") {
+        const lastPoint = this.tempPath[this.tempPath.length - 1];
+        const distance = Math.sqrt(
+          Math.pow(x - lastPoint.x, 2) + Math.pow(y - lastPoint.y, 2)
+        );
+        if (distance > 2) {
+          requestAnimationFrame(() => {
+            this.drawPencil(x, y);
+          });
+        }
+      } else if (this.selectedTool === "diamond") {
+        const size = Math.max(Math.abs(width), Math.abs(height));
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.startX, this.startY - size);
+        this.ctx.lineTo(this.startX + size, this.startY);
+        this.ctx.lineTo(this.startX, this.startY + size);
+        this.ctx.lineTo(this.startX - size, this.startY);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+      } else if (this.selectedTool === "eraser") {
+        this.eraseShape(x, y);
+      }
+    }
+  };
 }

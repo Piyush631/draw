@@ -89,7 +89,7 @@ export default function SignIn() {
               <input
                 {...register("email")}
                 type="text"
-                className="px-2 py-2 border-gray-300 border-1  rounded-xl"
+                className="px-2 py-2 w-full border-gray-300 border-1  rounded-xl"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -108,7 +108,7 @@ export default function SignIn() {
               <input
                 {...register("password")}
                 type="password"
-                className="px-2 py-2 border-gray-300 border-1 rounded-xl"
+                className="px-2 py-2 w-full border-gray-300 border-1 rounded-xl"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
