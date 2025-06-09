@@ -42,11 +42,39 @@ export default function Canvas({ roomId, socket }: canva) {
   useEffect(() => {
     const canvas = canvasref.current;
     if (!canvas) return;
+    
+    // Set initial size
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    
+    // Set initial black background
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
     const handleResize = () => {
+      // Store current canvas content
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      if (!tempCtx) return;
+      
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      tempCtx.drawImage(canvas, 0, 0);
+
+      // Update canvas size
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      // Restore content and background
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(tempCanvas, 0, 0);
+      }
     };
 
     window.addEventListener("resize", handleResize);

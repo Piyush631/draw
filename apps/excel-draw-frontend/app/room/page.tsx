@@ -217,10 +217,10 @@ export default function Room() {
 
       {/* Create Room Modal */}
       {createRoom && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setCreateRoom(false)}></div>
-          <div className="relative bg-white px-5 py-4 rounded-2xl w-full max-w-md mx-4">
-            <div className="text-3xl flex justify-end">
+          <div className="relative bg-white px-4 py-4 rounded-2xl w-full max-w-[90%] sm:max-w-md mx-auto">
+            <div className="text-2xl flex justify-end">
               <span onClick={() => setCreateRoom(false)} className="cursor-pointer">
                 <IoClose />
               </span>
@@ -231,12 +231,12 @@ export default function Room() {
               <input
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
+                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full text-base"
                 type="text"
                 placeholder="Enter Room Name"
               />
               <div className="flex justify-center pt-2">
-                <button onClick={CreateRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                <button onClick={CreateRoom} className="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                   Create
                 </button>
               </div>
@@ -247,10 +247,10 @@ export default function Room() {
 
       {/* Join Room Modal */} 
       {joinRoom && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setJoinRoom(false)}></div>
-          <div className="relative bg-white px-5 py-4 rounded-2xl w-full max-w-md mx-4">
-            <div className="text-3xl flex justify-end">
+          <div className="relative bg-white px-4 py-4 rounded-2xl w-full max-w-[90%] sm:max-w-md mx-auto">
+            <div className="text-2xl flex justify-end">
               <span onClick={() => setJoinRoom(false)} className="cursor-pointer">
                 <IoClose />
               </span>
@@ -261,12 +261,12 @@ export default function Room() {
               <input
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
-                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full"
+                className="py-2 px-2 border-1 border-gray-500 rounded-xl w-full text-base"
                 type="text"
                 placeholder="Enter Room Name"
               />
               <div className="flex justify-center pt-2">
-                <button onClick={EnterRoom} className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                <button onClick={EnterRoom} className="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                   Join
                 </button>
               </div>
